@@ -1,0 +1,13 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<Project ToolsVersion="12.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <CustomBuild Include="C:\Users\ming\Documents\MR_DWI\DicomWidget\Build\CMakeFiles\c8c9752b4ccd5bb19e9fcaa0367c9500\generate.stamp.rule">
+      <Filter>CMake Rules</Filter>
+    </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="CMake Rules">
+      <UniqueIdentifier>{C56074F0-BE7C-35A9-BE58-02DE504C3BFB}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>
