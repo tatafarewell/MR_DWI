@@ -56,12 +56,11 @@ set(MOC_Hdrs
 # Instruct CMake to run moc automatically when needed.
 set(CMAKE_AUTOMOC ON)
 
-
-find_package(Qt5 COMPONENTS Widgets REQUIRED QUIET)
+find_package(Qt5 COMPONENTS Widgets Core Gui Sql OpenGL Xml REQUIRED QUIET)
 qt5_wrap_ui(UI_Srcs ${UIs})
 
 # CMAKE_AUTOMOC in ON so the MocHdrs will be automatically wrapped.
-add_executable(DicomUI ${Srcs} ${Hdrs} ${UI_Srcs} ${MOC_Hdrs})
+add_library(DicomUI ${Srcs} ${Hdrs} ${UI_Srcs} ${MOC_Hdrs})
 qt5_use_modules(DicomUI Core Gui Widgets Sql OpenGL Xml)
 target_link_libraries(DicomUI CTKDICOMWidgets)
 

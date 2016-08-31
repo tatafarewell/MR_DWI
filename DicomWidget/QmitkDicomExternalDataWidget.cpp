@@ -26,7 +26,7 @@ See LICENSE.txt or http://www.mitk.org for details.
 #include <QCheckBox>
 #include <QMessageBox>
 
-const std::string QmitkDicomExternalDataWidget::Widget_ID = "org.mitk.Widgets.QmitkDicomExternalDataWidget";
+const std::string QmitkDicomExternalDataWidget::Widget_ID = "DicomUI.QmitkDicomExternalDataWidget";
 
 QmitkDicomExternalDataWidget::QmitkDicomExternalDataWidget(QWidget *parent)
   : QWidget(parent)

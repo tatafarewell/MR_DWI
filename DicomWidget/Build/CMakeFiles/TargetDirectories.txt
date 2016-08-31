@@ -1,3 +1,0 @@
-C:/Users/ming/Documents/MR_DWI/DicomWidget/Build/CMakeFiles/DicomUI.dir
-C:/Users/ming/Documents/MR_DWI/DicomWidget/Build/CMakeFiles/ALL_BUILD.dir
-C:/Users/ming/Documents/MR_DWI/DicomWidget/Build/CMakeFiles/ZERO_CHECK.dir
