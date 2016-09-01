@@ -1,12 +1,4 @@
-# include_directories(${CTK_INCLUDE_DIRS})
-
-# MITK_CREATE_MODULE(
-  # DEPENDS MitkCore
-  # PACKAGE_DEPENDS
-    # PUBLIC CTK|CTKDICOMWidgets Qt5|Sql
-    # PRIVATE Qt5|OpenGL+Widgets+Xml
-  # )
-cmake_minimum_required(VERSION 3.0)
+cmake_minimum_required(VERSION 2.8.8)
 if(POLICY CMP0020)
   cmake_policy(SET CMP0020 NEW)
 endif()
@@ -19,48 +11,55 @@ endif()
 if(POLICY CMP0053)
   cmake_policy(SET CMP0053 NEW) # CMake 3.1
 endif()
+project(MR_Diffusion)
 
-project(DicomUI)
-
-set(CTK_DIR "E:/Tech318/MITK/MITK/Build/ep/src/CTK-build")
+find_package(VTK REQUIRED)
+set(CTK_DIR "C:/Tech318/CTK/CTK/CTK-Superbuild")
 find_package(CTK REQUIRED)
+#find_package(QT REQUIRED)
 
-include_directories(${CTK_INCLUDE_DIRS})
+include(${VTK_USE_FILE})
+include(${CTK_USE_FILE})
+#include(${QT_USE_FILE})
+
+if("${VTK_QT_VERSION}" STREQUAL "")
+  message(FATAL_ERROR "VTK was not built with Qt")
+endif()
+
+# Set your files and resources here
+set( Srcs QmitkDicomExternalDataWidget.cpp )
+
+set( Hdrs QmitkDicomExternalDataWidget.h )
+
+set( MOC_Hdrs QmitkDicomExternalDataWidget.h )
+
+set( UIs QmitkDicomExternalDataWidgetControls.ui )
 
 include_directories(
   ${CMAKE_CURRENT_BINARY_DIR}
   ${CMAKE_CURRENT_SOURCE_DIR}
 )
 
-set(Hdrs
-  QmitkDicomExternalDataWidget.h
-  QmitkDicomLocalStorageWidget.h
-)
-
-set(Srcs
-  QmitkDicomLocalStorageWidget.cpp
-  QmitkDicomExternalDataWidget.cpp
-)
-
-set(UIs
-  QmitkDicomLocalStorageWidgetControls.ui
-  QmitkDicomExternalDataWidgetControls.ui
-)
-
-set(MOC_Hdrs
-  QmitkDicomLocalStorageWidget.h
-  QmitkDicomExternalDataWidget.h
-)
-
-
 # Instruct CMake to run moc automatically when needed.
 set(CMAKE_AUTOMOC ON)
 
-find_package(Qt5 COMPONENTS Widgets Core Gui Sql OpenGL Xml REQUIRED QUIET)
-qt5_wrap_ui(UI_Srcs ${UIs})
+if(VTK_QT_VERSION VERSION_GREATER "4")
+  find_package(Qt5 COMPONENTS Widgets REQUIRED QUIET)
+  qt5_wrap_ui(UI_Srcs ${UIs})
 
-# CMAKE_AUTOMOC in ON so the MocHdrs will be automatically wrapped.
-add_library(DicomUI ${Srcs} ${Hdrs} ${UI_Srcs} ${MOC_Hdrs})
-qt5_use_modules(DicomUI Core Gui Widgets Sql OpenGL Xml)
-target_link_libraries(DicomUI CTKDICOMWidgets)
+  # CMAKE_AUTOMOC in ON so the MocHdrs will be automatically wrapped.
+  add_library(MR_Diffusion ${Srcs} ${Hdrs} ${UI_Srcs} ${MOC_Hdrs})
+  qt5_use_modules(MR_Diffusion Core Gui Widgets Sql Xml UiTools XmlPatterns Concurrent)
+  target_link_libraries(MR_Diffusion ${VTK_LIBRARIES} ${QT_LIBRARIES} CTKWidgets CTKDICOMWidgets)
+else()
+  find_package(Qt4 REQUIRED)
+  include(${QT_USE_FILE})
+  # Use what VTK built with
+  set(QT_QMAKE_EXECUTABLE ${VTK_QT_QMAKE_EXECUTABLE} CACHE FILEPATH "")
+  set(QT_MOC_EXECUTABLE ${VTK_QT_MOC_EXECUTABLE} CACHE FILEPATH "")
+  set(QT_UIC_EXECUTABLE ${VTK_QT_UIC_EXECUTABLE} CACHE FILEPATH "")
+  qt4_wrap_ui(UI_Srcs ${UIs})
 
+  add_executable(MR_Diffusion ${Srcs} ${Hdrs} ${UI_Srcs} ${MOC_Hdrs})
+  target_link_libraries(MR_Diffusion ${QT_LIBRARIES} ${VTK_LIBRARIES})
+endif()
