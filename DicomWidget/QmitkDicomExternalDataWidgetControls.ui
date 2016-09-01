@@ -44,7 +44,7 @@
             <string>Scan directory</string>
            </property>
            <property name="icon">
-            <iconset resource="../../../Plugins/org.mitk.gui.qt.dicom/resources/dicom.qrc">
+            <iconset resource="resources/dicom.qrc">
              <normaloff>:/org.mitk.gui.qt.dicom/folder_32.png</normaloff>:/org.mitk.gui.qt.dicom/folder_32.png</iconset>
            </property>
           </widget>
@@ -58,7 +58,7 @@
             <string>Add to local storage</string>
            </property>
            <property name="icon">
-            <iconset resource="../../../Plugins/org.mitk.gui.qt.dicom/resources/dicom.qrc">
+            <iconset resource="resources/dicom.qrc">
              <normaloff>:/org.mitk.gui.qt.dicom/import_32.png</normaloff>:/org.mitk.gui.qt.dicom/import_32.png</iconset>
            </property>
           </widget>
@@ -72,7 +72,7 @@
             <string>View</string>
            </property>
            <property name="icon">
-            <iconset resource="../../../Plugins/org.mitk.gui.qt.dicom/resources/dicom.qrc">
+            <iconset resource="resources/dicom.qrc">
              <normaloff>:/org.mitk.gui.qt.dicom/viewIcon.png</normaloff>:/org.mitk.gui.qt.dicom/viewIcon.png</iconset>
            </property>
            <property name="iconSize">
@@ -132,7 +132,7 @@
   </customwidget>
  </customwidgets>
  <resources>
-  <include location="../../../Plugins/org.mitk.gui.qt.dicom/resources/dicom.qrc"/>
+  <include location="resources/dicom.qrc"/>
  </resources>
  <connections/>
 </ui>
