@@ -16,7 +16,7 @@ See LICENSE.txt or http://www.mitk.org for details.
 
 // Qmitk
 #include "QmitkDicomLocalStorageWidget.h"
-//#include <mitkLogMacros.h>
+#include "ui_QmitkDicomLocalStorageWidgetControls.h"
 
 // Qt
 #include <QLabel>
@@ -24,7 +24,7 @@ See LICENSE.txt or http://www.mitk.org for details.
 #include <QVariant>
 #include <QMessageBox>
 
-const std::string QmitkDicomLocalStorageWidget::Widget_ID = "org.mitk.Widgets.QmitkDicomLocalStorageWidget";
+//const std::string QmitkDicomLocalStorageWidget::Widget_ID = "org.mitk.Widgets.QmitkDicomLocalStorageWidget";
 
 QmitkDicomLocalStorageWidget::QmitkDicomLocalStorageWidget(QWidget *parent)
   : QWidget(parent)

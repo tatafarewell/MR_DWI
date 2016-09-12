@@ -17,8 +17,8 @@ See LICENSE.txt or http://www.mitk.org for details.
 #ifndef QmitkDicomExternalDataWidget_h
 #define QmitkDicomExternalDataWidget_h
 
-//#include <MitkDicomUIExports.h>
-#include "ui_QmitkDicomExternalDataWidgetControls.h"
+//#include "DCMUIExport.h"
+
 
 // include ctk
 #include <ctkDICOMDatabase.h>
@@ -35,12 +35,17 @@ See LICENSE.txt or http://www.mitk.org for details.
 
 class ctkFileDialog;
 
+namespace Ui{
+	class QmitkDicomExternalDataWidgetControls;
+}
 /**
 * \brief QmitkDicomExternalDataWidget is a QWidget providing functionality for dicom import.
 *
 * \sa QmitkFunctionality
 * \ingroup Functionalities
 */
+
+//class DCM_UI_EXPORT QmitkDicomExternalDataWidget : public QWidget
 class QmitkDicomExternalDataWidget : public QWidget
 {
    // this is needed for all Qt objects that should have a Qt meta-object

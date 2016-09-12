@@ -16,9 +16,8 @@ See LICENSE.txt or http://www.mitk.org for details.
 #ifndef QmitkDicomLocalStorageWidget_h
 #define QmitkDicomLocalStorageWidget_h
 
-// #include <QmitkFunctionality.h>
-#include "ui_QmitkDicomLocalStorageWidgetControls.h"
-//#include <MitkDicomUIExports.h>
+//#include "DCMUIExport.h"
+
 
 // include ctk
 #include <ctkDICOMDatabase.h>
@@ -34,6 +33,9 @@ See LICENSE.txt or http://www.mitk.org for details.
 
 class QProgressDialog;
 class QLabel;
+namespace Ui{
+	class QmitkDicomLocalStorageWidgetControls;
+}
 
 /**
 * \brief QmitkDicomLocalStorageWidget is a QWidget providing functionality for dicom storage and import.
@@ -41,6 +43,8 @@ class QLabel;
 * \sa QmitkFunctionality
 * \ingroup Functionalities
 */
+//class DCM_UI_EXPORT QmitkDicomLocalStorageWidget : public QWidget
+
 class QmitkDicomLocalStorageWidget : public QWidget
 {
     // this is needed for all Qt objects that should have a Qt meta-object

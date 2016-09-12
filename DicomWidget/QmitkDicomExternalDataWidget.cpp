@@ -15,9 +15,9 @@ See LICENSE.txt or http://www.mitk.org for details.
 ===================================================================*/
 
 
-// Qmitk
+
 #include "QmitkDicomExternalDataWidget.h"
-//#include <mitkLogMacros.h>
+#include "ui_QmitkDicomExternalDataWidgetControls.h"
 
 // CTK
 #include <ctkFileDialog.h>
@@ -26,7 +26,7 @@ See LICENSE.txt or http://www.mitk.org for details.
 #include <QCheckBox>
 #include <QMessageBox>
 
-const std::string QmitkDicomExternalDataWidget::Widget_ID = "DicomUI.QmitkDicomExternalDataWidget";
+//const std::string QmitkDicomExternalDataWidget::Widget_ID = "DicomUI.QmitkDicomExternalDataWidget";
 
 QmitkDicomExternalDataWidget::QmitkDicomExternalDataWidget(QWidget *parent)
   : QWidget(parent)
