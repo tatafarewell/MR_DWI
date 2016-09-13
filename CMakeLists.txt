@@ -43,9 +43,10 @@ include_directories(
 
 find_package(Qt5 COMPONENTS Widgets REQUIRED QUIET)
 qt5_wrap_ui(UI_Srcs ${UIs})
+qt5_add_resources(UI_qrc "resources/dicom.qrc")
 
 # CMAKE_AUTOMOC in ON so the MocHdrs will be automatically wrapped.
-add_executable(DWIAPP ${Srcs} ${Hdrs} ${UI_Srcs} ${MOC_Hdrs})
+add_executable(DWIAPP ${Srcs} ${Hdrs} ${UI_Srcs} ${MOC_Hdrs} ${UI_qrc})
 qt5_use_modules(DWIAPP Core Gui Widgets Sql Xml UiTools XmlPatterns Concurrent)
 target_link_libraries(DWIAPP ${QT_LIBRARIES} ${VTK_LIBRARIES} DicomWidget CTKDICOMWidgets)
 

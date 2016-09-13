@@ -3,7 +3,7 @@
 *
 *=========================================================================*/
 
-#include "vtkmyheader/cDWI.h"
+#include "cDWI.h"
 
 void DicomRead(vtkSmartPointer <vtkDICOMReader> & reader, const char *directoryName)
 {
