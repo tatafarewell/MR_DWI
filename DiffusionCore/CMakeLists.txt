@@ -17,24 +17,42 @@ endif()
 # find_package(ITK REQUIRED)
 # include(${ITK_USE_FILE})
 
-set( Srcs cDWiFilter.cpp )
+set( Srcs 
+    cDWiFilter.cpp 
+    DicomHelper.cpp
+	DiffusionCore.cpp
+	)
 
 set( Hdrs 
      itkAdcMapFilter.hxx 
-	 itkAdcMapFilter.h 
-	 itkComputedDwiFilter.h 
+     itkAdcMapFilter.h 
+     itkComputedDwiFilter.h 
 	 itkComputedDwiFilter.hxx 
 	 itkDwiIVIMCostFunction.h
 	 itkDwiIVIMFilter.hxx
 	 itkDwiIVIMFilter.h
 	 cDWI.h
+     DicomHelper.h
    )
 
-# set( MOC_Hdrs QmitkDicomExternalDataWidget.h QmitkDicomLocalStorageWidget.h)
-# set( UIs QmitkDicomExternalDataWidgetControls.ui QmitkDicomLocalStorageWidgetControls.ui)
+set( MOC_Hdrs DiffusionCore.h)
+set( UIs DiffusionCore.ui)
 
-add_library(DiffusionCore STATIC ${Srcs} ${Hdrs})
-target_link_libraries(DiffusionCore ${ITK_LIBRARIES} ${VTK_LIBRARIES} ${Glue})
+include_directories(
+  ${CMAKE_CURRENT_BINARY_DIR}
+  ${CMAKE_CURRENT_SOURCE_DIR}
+)
+
+# Instruct CMake to run moc automatically when needed.
+set(CMAKE_AUTOMOC ON)
+
+
+find_package(Qt5 COMPONENTS Widgets REQUIRED QUIET)
+qt5_wrap_ui(UI_Srcs ${UIs})
+qt5_use_modules(DicomWidget Core Gui Widgets opengl)
+
+add_library(DiffusionCore STATIC ${Srcs} ${Hdrs} ${MOC_Hdrs} ${UIs}})
+target_link_libraries(DiffusionCore ${QT_LIBRARIES} ${ITK_LIBRARIES} ${VTK_LIBRARIES} ${Glue})
 # if(VTK_LIBRARIES)
   # target_link_libraries(DiffusionCore ${VTK_LIBRARIES})
 # else()
