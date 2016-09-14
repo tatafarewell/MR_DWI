@@ -12,10 +12,10 @@ if(POLICY CMP0053)
   cmake_policy(SET CMP0053 NEW) # CMake 3.1
 endif()
 
-# find_package(VTK REQUIRED)
-# include(${VTK_USE_FILE})
-# find_package(ITK REQUIRED)
-# include(${ITK_USE_FILE})
+# find_package(vtk required)
+# include(${vtk_use_file})
+# find_package(itk required)
+# include(${itk_use_file})
 
 set( Srcs 
     cDWiFilter.cpp 
@@ -49,9 +49,8 @@ set(CMAKE_AUTOMOC ON)
 
 find_package(Qt5 COMPONENTS Widgets REQUIRED QUIET)
 qt5_wrap_ui(UI_Srcs ${UIs})
-qt5_use_modules(DicomWidget Core Gui Widgets opengl)
-
-add_library(DiffusionCore STATIC ${Srcs} ${Hdrs} ${MOC_Hdrs} ${UIs}})
+add_library(DiffusionCore STATIC ${Srcs} ${Hdrs} ${UI_Srcs} ${MOC_Hdrs} )
+qt5_use_modules(DiffusionCore Core Gui Widgets Sql Xml UiTools XmlPatterns Concurrent)
 target_link_libraries(DiffusionCore ${QT_LIBRARIES} ${ITK_LIBRARIES} ${VTK_LIBRARIES} ${Glue})
 # if(VTK_LIBRARIES)
   # target_link_libraries(DiffusionCore ${VTK_LIBRARIES})
