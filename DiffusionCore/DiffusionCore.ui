@@ -48,7 +48,7 @@
          </sizepolicy>
         </property>
         <property name="currentIndex">
-         <number>1</number>
+         <number>0</number>
         </property>
         <widget class="QWidget" name="Hist">
          <attribute name="title">
@@ -140,10 +140,15 @@
              </property>
             </widget>
            </item>
+           <item row="0" column="1">
+            <widget class="QPushButton" name="pushButton">
+             <property name="text">
+              <string>开始计算</string>
+             </property>
+            </widget>
+           </item>
           </layout>
          </widget>
-         <zorder>infoTool</zorder>
-         <zorder>formLayoutWidget</zorder>
         </widget>
         <widget class="QWidget" name="IVIM">
          <property name="geometry">
@@ -151,7 +156,7 @@
            <x>0</x>
            <y>0</y>
            <width>289</width>
-           <height>481</height>
+           <height>483</height>
           </rect>
          </property>
          <attribute name="label">
