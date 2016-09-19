@@ -1,9 +1,12 @@
 #include <vtkDICOMDirectory.h>
 #include <vtkSmartPointer.h>
 #include <vtkDICOMReader.h>
-#include <vnl/vnl_matrix.h>
 
-#include <DTISolution.h>
+#include <itkVector.h>
+#include <itkVectorContainer.h>
+
+#include <vnl/vnl_matrix.h>
+#include <vnl/algo/vnl_matrix_inverse.h>
 
 #include <iostream>
 #include <vector>
@@ -39,6 +42,8 @@ public:
 	~DicomHelper() {};
 	void DicomHelper::RemoveIsoImage();
 
+	void DicomHelper::SetDiffusionSeriesNumber(int seriesNumber);
+
 	float scaleSlope;
 	float scaleIntercept;
 	int numberOfGradDirection;
@@ -53,14 +58,18 @@ public:
 	itk::Vector<double, 3> ang;
 	vnl_matrix<double> slice2PatMatrix;
 
+	typedef itk::Vector<float, 3> GradientDirectionType;
+	typedef itk::VectorContainer< unsigned int, GradientDirectionType >
+		GradientDirectionContainerType;
 	GradientDirectionContainerType::Pointer gradientDirection;
+	int DiffusionSeryNumber;
 
 private:
-	int DiffusionSeryNumber;
+
 	vtkSmartPointer<vtkDICOMDirectory> dDir;
 
 	vtkStringArray *FileNamesForDiffusionSeries;
-	int GetDiffusionDataset(char *DirectoryName);
+	//int GetDiffusionDataset(char *DirectoryName);
 
 	void DicomHelper::CalculateFinalHMatrix();
 	void DicomHelper::GetSliceToPatMatrix();

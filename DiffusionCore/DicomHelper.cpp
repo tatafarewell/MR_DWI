@@ -1,14 +1,20 @@
 #include <DicomHelper.h>
+
 #include <vtkDICOMMetaData.h>
 #include <vtkDICOMValue.h>
 #include <vtkImageData.h>
 #include <vtkStringArray.h>
 
-int DicomHelper::GetDiffusionDataset(char *DirectoryName)
-{
-	int DiffusionSery = 0;
-	return DiffusionSery;
 
+//int DicomHelper::GetDiffusionDataset(char *DirectoryName)
+//{
+//	int DiffusionSery = 0;
+//	return DiffusionSery;
+//
+//};
+void DicomHelper::SetDiffusionSeriesNumber(int seriesNumber)
+{
+	DiffusionSeryNumber = seriesNumber;
 };
 
 void DicomHelper::DicomInfo()
@@ -215,6 +221,10 @@ void DicomHelper::GetSliceToPatMatrix()
 
 void DicomHelper::Dicomread()
 {
+	//DiffusionSeryNumber = GetDiffusionDataset(DirectoryName);
+	cout << "series number " << DiffusionSeryNumber << endl;
+	FileNamesForDiffusionSeries = dDir->GetFileNamesForSeries(DiffusionSeryNumber);
+
 	DicomReader->SetFileNames(FileNamesForDiffusionSeries);
 	DicomReader->Update();
 };
@@ -226,10 +236,6 @@ DicomHelper::DicomHelper(char *DirectoryName)
 	dDir->SetDirectoryName(DirectoryName);
 	dDir->SetScanDepth(1);
 	dDir->Update();
-
-	DiffusionSeryNumber = GetDiffusionDataset(DirectoryName);
-	//cout << "series number "<< DiffusionSeryNumber << endl;
-	FileNamesForDiffusionSeries = dDir->GetFileNamesForSeries(DiffusionSeryNumber);
 
 	DicomReader = vtkSmartPointer <vtkDICOMReader>::New();
 };
