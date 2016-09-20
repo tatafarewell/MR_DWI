@@ -12,27 +12,30 @@ if(POLICY CMP0053)
   cmake_policy(SET CMP0053 NEW) # CMake 3.1
 endif()
 
-# find_package(vtk required)
-# include(${vtk_use_file})
-# find_package(itk required)
-# include(${itk_use_file})
+find_package(VTK REQUIRED)
+include(${VTK_USE_FILE})
+find_package(ITK REQUIRED)
+include(${ITK_USE_FILE})
+find_package(CTK REQUIRED)
+include(${CTK_USE_FILE})
 
 set( Srcs 
-    cDWiFilter.cpp 
+    #cDWiFilter.cpp 
     DicomHelper.cpp
 	DiffusionCore.cpp
 	)
 
 set( Hdrs 
-     itkAdcMapFilter.hxx 
-     itkAdcMapFilter.h 
-     itkComputedDwiFilter.h 
-	 itkComputedDwiFilter.hxx 
-	 itkDwiIVIMCostFunction.h
-	 itkDwiIVIMFilter.hxx
-	 itkDwiIVIMFilter.h
-	 cDWI.h
+     #itkAdcMapFilter.hxx 
+     #itkAdcMapFilter.h 
+     #itkComputedDwiFilter.h 
+	 #itkComputedDwiFilter.hxx 
+	 #itkDwiIVIMCostFunction.h
+	 #itkDwiIVIMFilter.hxx
+	 #itkDwiIVIMFilter.h
+	 #cDWI.h
      DicomHelper.h
+	 DiffusionCore.h
    )
 
 set( MOC_Hdrs DiffusionCore.h)
@@ -51,7 +54,7 @@ find_package(Qt5 COMPONENTS Widgets REQUIRED QUIET)
 qt5_wrap_ui(UI_Srcs ${UIs})
 add_library(DiffusionCore STATIC ${Srcs} ${Hdrs} ${UI_Srcs} ${MOC_Hdrs} )
 qt5_use_modules(DiffusionCore Core Gui Widgets Sql Xml UiTools XmlPatterns Concurrent)
-target_link_libraries(DiffusionCore ${QT_LIBRARIES} ${ITK_LIBRARIES} ${VTK_LIBRARIES} ${Glue})
+target_link_libraries(DiffusionCore ${ITK_LIBRARIES} ${VTK_LIBRARIES} ${Glue} CTKWidgets)
 # if(VTK_LIBRARIES)
   # target_link_libraries(DiffusionCore ${VTK_LIBRARIES})
 # else()
