@@ -6,6 +6,7 @@
 #include <vtkStringArray.h>
 
 
+
 //int DicomHelper::GetDiffusionDataset(char *DirectoryName)
 //{
 //	int DiffusionSery = 0;
@@ -219,23 +220,23 @@ void DicomHelper::GetSliceToPatMatrix()
 };
 
 
-void DicomHelper::Dicomread()
-{
-	//DiffusionSeryNumber = GetDiffusionDataset(DirectoryName);
-	cout << "series number " << DiffusionSeryNumber << endl;
-	FileNamesForDiffusionSeries = dDir->GetFileNamesForSeries(DiffusionSeryNumber);
+//void DicomHelper::Dicomread()
+//{
+//	//DiffusionSeryNumber = GetDiffusionDataset(DirectoryName);
+//	//cout << "series number " << DiffusionSeryNumber << endl;
+//	//FileNamesForDiffusionSeries = dDir->GetFileNamesForSeries(DiffusionSeryNumber);
+//
+//};
 
-	DicomReader->SetFileNames(FileNamesForDiffusionSeries);
-	DicomReader->Update();
-};
-
-DicomHelper::DicomHelper(char *DirectoryName)
+DicomHelper::DicomHelper(vtkStringArray* Files)
 {
 	//cout << "direcotry name" << DirectoryName << endl;
-	dDir = vtkSmartPointer<vtkDICOMDirectory>::New();
-	dDir->SetDirectoryName(DirectoryName);
-	dDir->SetScanDepth(1);
-	dDir->Update();
-
-	DicomReader = vtkSmartPointer <vtkDICOMReader>::New();
+	//dDir = vtkSmartPointer<vtkDICOMDirectory>::New();
+	//dDir->SetDirectoryName(DirectoryName);
+	//dDir->SetScanDepth(1);
+	//dDir->Update();	
+	//FileNamesForDiffusionSeries = Files;
+	DicomReader = vtkSmartPointer<vtkDICOMReader>::New();
+	DicomReader->SetFileNames(Files);
+	DicomReader->Update();
 };

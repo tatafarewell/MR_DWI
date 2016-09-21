@@ -35,7 +35,9 @@
 class DicomHelper
 {
 public:
-	DicomHelper(char *DirecotyName);
+
+	DicomHelper(vtkStringArray* Files);
+
 	void Dicomread();
 	void DicomHelper::DicomInfo();
 	vtkSmartPointer<vtkDICOMReader> DicomReader;

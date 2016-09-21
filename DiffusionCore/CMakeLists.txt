@@ -22,20 +22,20 @@ include(${CTK_USE_FILE})
 set( Srcs 
     #cDWiFilter.cpp 
     DicomHelper.cpp
-	DiffusionCore.cpp
-	)
+    DiffusionCore.cpp
+    )
 
 set( Hdrs 
      #itkAdcMapFilter.hxx 
      #itkAdcMapFilter.h 
      #itkComputedDwiFilter.h 
-	 #itkComputedDwiFilter.hxx 
-	 #itkDwiIVIMCostFunction.h
-	 #itkDwiIVIMFilter.hxx
-	 #itkDwiIVIMFilter.h
-	 #cDWI.h
+     #itkComputedDwiFilter.hxx 
+     #itkDwiIVIMCostFunction.h
+     #itkDwiIVIMFilter.hxx
+     #itkDwiIVIMFilter.h
+     #cDWI.h
      DicomHelper.h
-	 DiffusionCore.h
+     DiffusionCore.h
    )
 
 set( MOC_Hdrs DiffusionCore.h)

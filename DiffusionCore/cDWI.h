@@ -57,9 +57,9 @@
 #include <vtkSmartPointer.h>
 #include <vtkStringArray.h>
 #include <vtkIntArray.h>
-#include "vnl_matrix.h"
-#include "vnl_matrix_inverse.h"
-#include "vnl_vector.h"
+#include "vnl\vnl_matrix.h"
+#include "vnl\algo\vnl_matrix_inverse.h"
+#include "vnl\vnl_vector.h"
 ////////////////////////////////////////
 //ITK headers
 #include "itkImageToImageFilter.h"
