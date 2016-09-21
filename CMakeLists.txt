@@ -1,5 +1,4 @@
 cmake_minimum_required(VERSION 2.8.8)
-
 if(POLICY CMP0020)
   cmake_policy(SET CMP0020 NEW)
 endif()
@@ -12,42 +11,60 @@ endif()
 if(POLICY CMP0053)
   cmake_policy(SET CMP0053 NEW) # CMake 3.1
 endif()
-
-project(MR_diffusion)
+project(MR_Diffusion)
 
 add_subdirectory(DicomWidget)
 add_subdirectory(DiffusionCore)
 
+find_package(VTK REQUIRED)
 set(CTK_DIR "C:/Tech318/CTK/CTK/CTK-Superbuild")
 find_package(CTK REQUIRED)
-include(${CTK_USE_FILE})
+#find_package(QT REQUIRED)
 
-find_package(VTK REQUIRED)
 include(${VTK_USE_FILE})
-find_package(ITK REQUIRED)
-include(${ITK_USE_FILE})
+include(${CTK_USE_FILE})
+#include(${QT_USE_FILE})
 
-set(CMAKE_AUTOMOC ON)
+if("${VTK_QT_VERSION}" STREQUAL "")
+  message(FATAL_ERROR "VTK was not built with Qt")
+endif()
 
 # Set your files and resources here
-set( Srcs mainapp.cpp mainhub.cpp)
-set( Hdrs mainhub.h)
-set( MOC_Hdrs mainhub.h)
-set( UIs mainhub.ui)
+set( Srcs main.cpp mainwindow.cpp)
+
+set( Hdrs mainwindow.h )
+
+set( MOC_Hdrs mainwindow.h )
+
+set( UIs mainwindow.ui )
 
 include_directories(
   ${CMAKE_CURRENT_BINARY_DIR}
   ${CMAKE_CURRENT_SOURCE_DIR}
   "DicomWidget"
+  "DiffusionCore"
 )
 
-find_package(Qt5 COMPONENTS Widgets REQUIRED QUIET)
-qt5_wrap_ui(UI_Srcs ${UIs})
-qt5_add_resources(UI_qrc "resources/dicom.qrc")
+# Instruct CMake to run moc automatically when needed.
+set(CMAKE_AUTOMOC ON)
 
-# CMAKE_AUTOMOC in ON so the MocHdrs will be automatically wrapped.
-add_executable(DWIAPP ${Srcs} ${Hdrs} ${UI_Srcs} ${MOC_Hdrs} ${UI_qrc})
-qt5_use_modules(DWIAPP Core Gui Widgets Sql Xml UiTools XmlPatterns Concurrent)
-target_link_libraries(DWIAPP ${QT_LIBRARIES} ${VTK_LIBRARIES} DicomWidget CTKDICOMWidgets)
+if(VTK_QT_VERSION VERSION_GREATER "4")
+  find_package(Qt5 COMPONENTS Widgets REQUIRED QUIET)
+  qt5_wrap_ui(UI_Srcs ${UIs})
 
-# install(TARGETS DWIAPP DESTINATION bin)
+  # CMAKE_AUTOMOC in ON so the MocHdrs will be automatically wrapped.
+  add_executable(MR_Diffusion ${Srcs} ${Hdrs} ${UI_Srcs} ${MOC_Hdrs})
+  qt5_use_modules(MR_Diffusion Core Gui Widgets Sql Xml UiTools XmlPatterns Concurrent)
+  target_link_libraries(MR_Diffusion ${VTK_LIBRARIES} ${QT_LIBRARIES}  DicomWidget DiffusionCore CTKWidgets CTKDICOMWidgets)
+else()
+  find_package(Qt4 REQUIRED)
+  include(${QT_USE_FILE})
+  # Use what VTK built with
+  set(QT_QMAKE_EXECUTABLE ${VTK_QT_QMAKE_EXECUTABLE} CACHE FILEPATH "")
+  set(QT_MOC_EXECUTABLE ${VTK_QT_MOC_EXECUTABLE} CACHE FILEPATH "")
+  set(QT_UIC_EXECUTABLE ${VTK_QT_UIC_EXECUTABLE} CACHE FILEPATH "")
+  qt4_wrap_ui(UI_Srcs ${UIs})
+
+  add_executable(MR_Diffusion ${Srcs} ${Hdrs} ${UI_Srcs} ${MOC_Hdrs})
+  target_link_libraries(MR_Diffusion ${QT_LIBRARIES} ${VTK_LIBRARIES})
+endif()
