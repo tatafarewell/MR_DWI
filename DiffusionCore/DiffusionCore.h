@@ -7,17 +7,21 @@ DWI Core UI
 #ifndef DiffusionCore_h
 #define DiffusionCore_h
 
-//// include ctk
-//#include <ctkDICOMDatabase.h>
-//#include <ctkDICOMIndexer.h>
+// Headers in this module
+// #include <DicomHelper.h>
 
 //include QT
-#include <QHash>
-#include <QLabel>
-#include <QProgressDialog>
-#include <QString>
-#include <QStringList>
-#include <QVariant>
+//#include <QHash>
+//#include <QLabel>
+//#include <QProgressDialog>
+//#include <QString>
+//#include <QStringList>
+//#include <QVariant>
+
+// include VTK
+#include <vtkImageData.h>
+#include "vtkSmartPointer.h"
+
 #include <QWidget>
 #include <qdebug.h>
 
@@ -98,8 +102,20 @@ signals:
 
 	protected slots:
 
-	/// \brief 
-	//void OnScanDirectory();
+	///// @brief
+	///// In this slot, implement the adc calculation
+	///// This causes a model update.
+	void  calcADC();
+
+	///// @brief
+	///// In this slot, implement the cdwi calculation with input bvalue
+	///// 
+	void cDWI(int bvalue);
+
+	///// @brief
+	///// In this slot, implement the filtering with input threshhold
+	///// 
+	void adc(int threshhold);
 
 protected:
 
@@ -120,11 +136,12 @@ protected:
 	//ctkFileDialog* m_ImportDialog;
 
 	//QLabel* m_ProgressDialogLabel;
-	//QProgressDialog* m_ProgressDialog;
-	//QString m_LastImportDirectory;
 
 	Ui::DiffusionModule* m_Controls;
-
+	//QString m_LastImportDirectory;
+	void DisplayDicomInfo(vtkSmartPointer <vtkImageData> imageData);	
+	vtkSmartPointer< vtkImageData > sourceImage;
+	//DicomHelper dicomHelp;
 };
 
 
