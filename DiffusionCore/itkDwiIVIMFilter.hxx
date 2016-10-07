@@ -9,7 +9,10 @@ namespace itk
 	DwiIVIMFilter< TInputPixelType, TOutputPixelType >
 	::DwiIVIMFilter()
 	{
-		m_NumOfIterations = 50;
+		m_NumOfIterations = 80;
+		m_GradientTolerence = 1e-5;
+		m_ValueTolerence = 1e-5;
+		m_EpsilonFunction = 1e-6;
 		m_InputImage = ITK_NULLPTR;
 		m_OutputImage = ITK_NULLPTR;
 	}
@@ -40,11 +43,6 @@ namespace itk
 		ConstInputIteratorType inputIt(m_InputImage, outputRegionForThread);
 		OutputIteratorType outputIt(m_OutputImage, outputRegionForThread);
 
-		/*std::cout << "NumOfDiffBValues: " << m_NumOfDiffBValues << std::endl;
-		std::cout << "NumOfDiffDirections: " << m_NumOfDiffDirections << std::endl;*/
-		VariableLengthVectorType inputPixelVector;
-		inputPixelVector.SetSize(m_BValueList.size());
-
 		VariableLengthVectorType IVIMResultVector;
 		IVIMResultVector.SetSize(3);//IVIM: Only f, D and D* are required to output
 
@@ -58,6 +56,9 @@ namespace itk
 
 		OptimizerType::Pointer optimizer = OptimizerType::New();
 		optimizer->SetNumberOfIterations(m_NumOfIterations);
+		optimizer->SetValueTolerance(m_ValueTolerence);
+		optimizer->SetGradientTolerance(m_GradientTolerence);
+		optimizer->SetEpsilonFunction(m_EpsilonFunction);
 		optimizer->UseCostFunctionGradientOff();
 		optimizer->SetInitialPosition(p);
 
@@ -65,19 +66,33 @@ namespace itk
 		outputIt.GoToBegin();
 		while (!inputIt.IsAtEnd())
 		{
-			for (int i = 0; i < m_BValueList.size(); i++)
+			// skip mask value and zero value
+			bool skip = true;
+			for (unsigned int i = 0; i < m_InputImage->GetVectorLength(); i++)
 			{
-				inputPixelVector[i] = inputIt.Get()[i];
+				if (inputIt.Get()[i] != 0)
+				{
+					skip = false;
+					break;
+				}
 			}
-			cost->SetPixelArray(inputPixelVector);//inputIt.Get()
-			optimizer->SetCostFunction(cost);
-			optimizer->StartOptimization();
 
-			//std::cout << "Position: " << optimizer->GetCurrentPosition() << std::endl;
-			// We estimated 4 parameters, but discarded the first S0 estimation result
-			for (int j = 0; j < 3; j++)
+			if (skip)
 			{
-				IVIMResultVector[j] = optimizer->GetCurrentPosition()[j+1];
+				IVIMResultVector.Fill(0);
+			}
+			else
+			{
+				cost->SetPixelArray(inputIt.Get());
+				optimizer->SetCostFunction(cost);
+				optimizer->StartOptimization();
+
+				//std::cout << "Position: " << optimizer->GetCurrentPosition() << std::endl;
+				// We estimated 4 parameters, but discarded the first S0 estimation result
+				for (int j = 0; j < 3; j++)
+				{
+					IVIMResultVector[j] = optimizer->GetCurrentPosition()[j + 1];
+				}
 			}
 			outputIt.Set(IVIMResultVector);
 			++outputIt;

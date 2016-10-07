@@ -2,9 +2,9 @@
 #define _itkAdcMapFilter_hxx_
 
 #include "itkAdcMapFilter.h"
-#include "vnl_matrix.h"
-#include "vnl_matrix_inverse.h"
-#include "vnl_vector.h"
+#include "vnl/vnl_matrix.h"
+#include "vnl/algo/vnl_matrix_inverse.h"
+#include "vnl/vnl_vector.h"
 
 namespace itk
 {
@@ -31,7 +31,6 @@ namespace itk
 			m_NumOfDiffDirections = (m_NumOfComponents - 1) / (m_NumOfDiffBValues - 1);
 		}
 		m_InputImage = this->GetInput();
-		//m_OutputImage->SetVectorLength(2 * m_NumOfDiffDirections);
 		m_OutputImage = this->GetOutput();
 		m_OutputImage->SetVectorLength(2 * m_NumOfDiffDirections);
 		m_OutputImage->Allocate();//Crutial.
@@ -45,14 +44,8 @@ namespace itk
 		ConstInputIteratorType inputIt(m_InputImage, outputRegionForThread);
 		OutputIteratorType outputIt(m_OutputImage, outputRegionForThread);
 
-		/*std::cout << "output Largest Region Index: " << m_OutputImage->GetLargestPossibleRegion().GetIndex() << std::endl;
-		std::cout << "output Largest Region size: " << m_OutputImage->GetLargestPossibleRegion().GetSize() << std::endl;
-		std::cout <<  "NumOfComponents: " << m_NumOfComponents << std::endl;
-		std::cout << "NumOfDiffBValues: " << m_NumOfDiffBValues << std::endl;
-		std::cout << "NumOfDiffDirections: " << m_NumOfDiffDirections << std::endl;*/
-
 		VariableLengthVectorType adcResultVector;
-		adcResultVector.SetSize(2 * m_NumOfDiffDirections);//[computedB0i, ADCi], i = 1,2,...numOfDiffDirections.
+		adcResultVector.SetSize(2 * m_NumOfDiffDirections);//[computedB0i, ADCi], i = 1,2,...numOfDiffDirections.	
 
 		vnl_matrix<float> x(m_NumOfDiffBValues, 2);
 		for (int row = 0; row < m_NumOfDiffBValues; row++)
@@ -69,30 +62,43 @@ namespace itk
 		outputIt.GoToBegin();
 		while (!inputIt.IsAtEnd())
 		{
-			//handle b0 image seperately: crutial!
-			rightSide[0] = inputIt.Get()[0];
-			rightSide[0] > 1 ? rightSide[0] : 1;
-			rightSide[0] = std::log(rightSide[0]);
-			for (int direction = 0; direction < m_NumOfDiffDirections; direction++)
+			// skip mask value and zero value
+			bool skip = true;
+			for (unsigned int i = 0; i < m_NumOfComponents; i++)
 			{
-				for (int bValue = 1; bValue < m_NumOfDiffBValues; bValue++)
+				if (inputIt.Get()[i] != 0)
 				{
-					rightSide[bValue] = inputIt.Get()[(bValue - 1)*m_NumOfDiffDirections + direction + 1];
-					rightSide[bValue] > 1 ? rightSide[bValue] : 1;//values smaller than 1 will be negative after log, replace with 1
-					rightSide[bValue] = std::log(rightSide[bValue]);
+					skip = false;
+					break;
 				}
-				adcVectorPerDirection = leftSide*rightSide;
-
-				if (isnan(adcVectorPerDirection[1]) || isinf(adcVectorPerDirection[1]))
-				{
-					adcVectorPerDirection[0] = 0;
-					adcVectorPerDirection[1] = 0;
-				}
-				adcVectorPerDirection[1] = fmax(0.0, -adcVectorPerDirection[1]);
-				adcResultVector[2 * direction] = adcVectorPerDirection[0];
-				adcResultVector[2 * direction + 1] = adcVectorPerDirection[1];
 			}
 
+			if (skip)
+			{
+				adcResultVector.Fill(0);
+			}
+			else
+			{
+				//handle b0 image seperately: crutial!
+				rightSide[0] = inputIt.Get()[0];
+				rightSide[0] = rightSide[0] > 1 ? rightSide[0] : 1;//values smaller than 1 will be negative after log, replace with 1
+				rightSide[0] = std::log(rightSide[0]);
+
+				for (int direction = 0; direction < m_NumOfDiffDirections; direction++)
+				{
+					for (int bValue = 1; bValue < m_NumOfDiffBValues; bValue++)
+					{
+						rightSide[bValue] = inputIt.Get()[(bValue - 1)*m_NumOfDiffDirections + direction + 1];
+						rightSide[bValue] = rightSide[bValue] > 1 ? rightSide[bValue] : 1;//values smaller than 1 will be negative after log, replace with 1
+						rightSide[bValue] = std::log(rightSide[bValue]);
+					}
+					adcVectorPerDirection = leftSide*rightSide;
+
+					adcVectorPerDirection[1] = fmax(0.0, -adcVectorPerDirection[1]);
+					adcResultVector[2 * direction] = adcVectorPerDirection[0];
+					adcResultVector[2 * direction + 1] = adcVectorPerDirection[1];
+				}
+			}
 			outputIt.Set(adcResultVector);
 			++outputIt;
 			++inputIt;

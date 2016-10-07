@@ -20,16 +20,20 @@ DWI Core UI
 
 // include VTK
 #include <vtkImageData.h>
+#include <vtkRenderWindowInteractor.h>
 #include "vtkSmartPointer.h"
 
 #include <QWidget>
 #include <qdebug.h>
+//#include "QVTKWidget.h"
 
 class ctkFileDialog;
 
 namespace Ui{
 	class DiffusionModule;
 }
+class DicomHelper;
+class QVTKWidget;
 /**
 * \brief DiffusionCore is a QWidget providing functionality for diffusion weighted image calculation.
 *
@@ -87,64 +91,56 @@ signals:
 	/// @brief Called when dicom files were input.
 	void OnImageFilesLoaded(const QStringList&);
 
-	///// @brief
-	//void OnViewButtonClicked();
-
-	///// @brief
-	//void OnStartDicomImport(const QString&);
-
-	///// @brief
-	///// In this slot the models database with new imports is set.
-	///// This causes a model update.
-	//void OnFinishedImport();
-
-	//void OnSeriesSelectionChanged(const QStringList &s);
-
 	protected slots:
 
 	///// @brief
 	///// In this slot, implement the adc calculation
 	///// This causes a model update.
-	void  calcADC();
+	void calcADC(bool toggle);
+
+	///// @brief
+	///// In this slot, implement the cDWI calculation and image rendering
+	///// 
+	void calcCDWI(bool toggle);
+
+	void calcEADC(bool toggle);
 
 	///// @brief
 	///// In this slot, implement the cdwi calculation with input bvalue
 	///// 
-	void cDWI(int bvalue);
+	void cDWI(double bvalue);
 
 	///// @brief
 	///// In this slot, implement the filtering with input threshhold
 	///// 
-	void adc(int threshhold);
+	void adc(double threshhold);
 
 protected:
 
-	/// \brief 
-	
-	//QStringList GetFileNamesFromIndex();
-
-	/// \brief 
-	
-	//void SetupImportDialog();
-
-	/// \brief 
-	
-	//void SetupProgressDialog(QWidget* parent);
-
-	//ctkDICOMDatabase* m_ExternalDatabase;
-	//ctkDICOMIndexer* m_ExternalIndexer;
-	//ctkFileDialog* m_ImportDialog;
-
-	//QLabel* m_ProgressDialogLabel;
-
 	Ui::DiffusionModule* m_Controls;
+	DicomHelper *m_DicomHelper;//initialization? 
 	//QString m_LastImportDirectory;
-	void DisplayDicomInfo(vtkSmartPointer <vtkImageData> imageData);	
+	void DisplayDicomInfo(vtkSmartPointer <vtkImageData> imageData);
+	void SourceImageViewer2D(vtkSmartPointer <vtkImageData>, QVTKWidget *qvtkWidget);
+	void QuantitativeImageViewer2D(vtkSmartPointer <vtkImageData>, QVTKWidget *qvtkWidget);
+	void TestCallbackFunc(vtkObject *caller, long unsigned int eventId, void *clientData, void* callData);
+
+
+protected:
 	vtkSmartPointer< vtkImageData > sourceImage;
-	//DicomHelper dicomHelp;
+	vtkSmartPointer <vtkRenderWindowInteractor> m_RenderWindowInteractor;
+	vtkSmartPointer< vtkImageData > cacheImage;
+	int m_SourceImageCurrentSlice;
+	int m_QuantitativeImageCurrentSlice;
+	double m_MaskThreshold;
+	double m_ComputedBValue;
 };
 
 
+//class DiffusionCore : public QVTKWidget
+//{
+//	protected:
+//}
 
 #endif //
 

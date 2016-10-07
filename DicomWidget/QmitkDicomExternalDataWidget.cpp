@@ -112,18 +112,35 @@ void QmitkDicomExternalDataWidget::OnViewButtonClicked()
 {
   QStringList uids = m_Controls->ctkDICOMBrowser->currentSeriesSelection();
   QString uid;
-  foreach (uid, uids)
+  //
+  // following are original MITK code 
+  //
+  //foreach (uid, uids)
+  //{
+  //  QStringList filesForSeries = m_ExternalDatabase->filesForSeries(uid);
+  //  QHash<QString, QVariant> eventProperty;
+  //  eventProperty.insert("FilesForSeries", filesForSeries);
+  //  if(!filesForSeries.isEmpty())
+  //  {
+  //    QString modality = m_ExternalDatabase->fileValue(filesForSeries.at(0),"0008,0060");
+  //    eventProperty.insert("Modality", modality);
+  //  }
+  //  emit SignalDicomToDataManager(eventProperty);
+  //}
+  QStringList filePaths;
+  foreach(uid, uids)
   {
-    QStringList filesForSeries = m_ExternalDatabase->filesForSeries(uid);
-    QHash<QString, QVariant> eventProperty;
-    eventProperty.insert("FilesForSeries", filesForSeries);
-    if(!filesForSeries.isEmpty())
-    {
-      QString modality = m_ExternalDatabase->fileValue(filesForSeries.at(0),"0008,0060");
-      eventProperty.insert("Modality", modality);
-    }
-    emit SignalDicomToDataManager(eventProperty);
+	  filePaths.append(m_ExternalDatabase->filesForSeries(uid));
+
   }
+  if (filePaths.size() == 0)
+  {
+	  QMessageBox info;
+	  info.setText("You have to select an entry in the dicom browser for viewing.");
+	  info.exec();
+	  return;
+  }
+  emit SignalDicomToDataManager(filePaths);
 }
 
 QStringList QmitkDicomExternalDataWidget::GetFileNamesFromIndex()
@@ -175,9 +192,8 @@ void QmitkDicomExternalDataWidget::OnStartDicomImport(const QString& directory)
 {
   m_ImportDialog->close();
   m_ProgressDialog->show();
-
-    m_LastImportDirectory = directory;
-    m_ExternalIndexer->addDirectory(*m_ExternalDatabase,m_LastImportDirectory);
+  m_LastImportDirectory = directory;
+  m_ExternalIndexer->addDirectory(*m_ExternalDatabase,m_LastImportDirectory);
 }
 
 void QmitkDicomExternalDataWidget::OnSeriesSelectionChanged(const QStringList& s)
@@ -207,6 +223,7 @@ void QmitkDicomExternalDataWidget::SetupProgressDialog(QWidget* parent)
     m_ProgressDialog->setLabel(m_ProgressDialogLabel);
     m_ProgressDialog->setWindowModality(Qt::ApplicationModal);
     m_ProgressDialog->setMinimumDuration(0);
+	m_ProgressDialog->setValue(m_ProgressDialog->maximum());
 }
 
 void QmitkDicomExternalDataWidget::OnScanDirectory()

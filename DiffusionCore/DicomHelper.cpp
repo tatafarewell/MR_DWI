@@ -5,14 +5,6 @@
 #include <vtkImageData.h>
 #include <vtkStringArray.h>
 
-
-
-//int DicomHelper::GetDiffusionDataset(char *DirectoryName)
-//{
-//	int DiffusionSery = 0;
-//	return DiffusionSery;
-//
-//};
 void DicomHelper::SetDiffusionSeriesNumber(int seriesNumber)
 {
 	DiffusionSeryNumber = seriesNumber;
@@ -220,13 +212,10 @@ void DicomHelper::GetSliceToPatMatrix()
 };
 
 
-//void DicomHelper::Dicomread()
-//{
-//	//DiffusionSeryNumber = GetDiffusionDataset(DirectoryName);
-//	//cout << "series number " << DiffusionSeryNumber << endl;
-//	//FileNamesForDiffusionSeries = dDir->GetFileNamesForSeries(DiffusionSeryNumber);
-//
-//};
+void DicomHelper::UpdateGradDirectionNumber()
+{
+	numberOfGradDirection = numberOfBValue > 1 ? (numberOfComponents - 1) / (numberOfBValue - 1) : numberOfGradDirection;
+};
 
 DicomHelper::DicomHelper(vtkStringArray* Files)
 {
@@ -238,5 +227,13 @@ DicomHelper::DicomHelper(vtkStringArray* Files)
 	//FileNamesForDiffusionSeries = Files;
 	DicomReader = vtkSmartPointer<vtkDICOMReader>::New();
 	DicomReader->SetFileNames(Files);
+
+	DicomHelper::DicomInfo();
 	DicomReader->Update();
+	numberOfComponents = DicomReader->GetOutput()->GetNumberOfScalarComponents();
+	DicomReader->GetOutput()->GetDimensions(imageDimensions);
+	if (numberOfGradDirection < 6 )
+	{
+		DicomHelper::UpdateGradDirectionNumber();
+	}
 };

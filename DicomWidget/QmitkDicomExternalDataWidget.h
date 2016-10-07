@@ -86,7 +86,7 @@ signals:
     void SignalStartDicomImport(const QStringList&);
 
     /// @brief emitted when view button is clicked.
-    void SignalDicomToDataManager(QHash<QString,QVariant>);
+	void SignalDicomToDataManager(const QStringList&);
 
 public slots:
 

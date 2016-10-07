@@ -26,14 +26,18 @@ set( Srcs
     )
 
 set( Hdrs 
-     #itkAdcMapFilter.hxx 
-     #itkAdcMapFilter.h 
-     #itkComputedDwiFilter.h 
-     #itkComputedDwiFilter.hxx 
-     #itkDwiIVIMCostFunction.h
-     #itkDwiIVIMFilter.hxx
-     #itkDwiIVIMFilter.h
-     #cDWI.h
+     itkAdcMapFilter.hxx 
+     itkAdcMapFilter.h 
+     itkComputedDwiFilter.h 
+     itkComputedDwiFilter.hxx 
+     itkDwiIVIMCostFunction.h
+     itkDwiIVIMFilter.hxx
+     itkDwiIVIMFilter.h
+     itkDisplayOptimizer.h
+     itkDisplayOptimizer.hxx
+     itkMaskVectorImageFilter.h
+     itkMaskVectorImageFilter.hxx
+     itkVtkAllHeaders.h
      DicomHelper.h
      DiffusionCore.h
    )

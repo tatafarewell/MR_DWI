@@ -90,7 +90,7 @@ signals:
     * @brief emitted when view button is clicked.
     * @param QHash containing dicom UIDs properties.
     */
-    void SignalDicomToDataManager(QHash<QString,QVariant>);
+	void SignalDicomToDataManager(const QStringList&);
 
     /// \brief emitted if cancel button is pressed.
     void SignalCancelImport();

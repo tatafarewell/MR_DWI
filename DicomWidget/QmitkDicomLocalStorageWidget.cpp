@@ -31,12 +31,17 @@ QmitkDicomLocalStorageWidget::QmitkDicomLocalStorageWidget(QWidget *parent)
   , m_LocalIndexer(new ctkDICOMIndexer(parent))
   , m_Controls(nullptr)
 {
+	m_LocalDatabase = new ctkDICOMDatabase(this);
+	if(!m_LocalDatabase->isOpen())
+	{
+		m_LocalDatabase->openDatabase(QString("ctkDICOM.sql"), QString("MYLOCALDICOM-DB"));
+	}
     CreateQtPartControl(this);
 }
 
 QmitkDicomLocalStorageWidget::~QmitkDicomLocalStorageWidget()
 {
-    m_LocalDatabase->closeDatabase();
+	m_LocalDatabase->closeDatabase();
 }
 
 void QmitkDicomLocalStorageWidget::CreateQtPartControl( QWidget *parent )
@@ -45,6 +50,8 @@ void QmitkDicomLocalStorageWidget::CreateQtPartControl( QWidget *parent )
     {
         m_Controls = new Ui::QmitkDicomLocalStorageWidgetControls;
         m_Controls->setupUi( parent );
+		m_Controls->ctkDicomBrowser->setTableOrientation(Qt::Vertical);
+		m_Controls->ctkDicomBrowser->setDICOMDatabase(m_LocalDatabase);
 
         connect(m_Controls->deleteButton,SIGNAL(clicked()),this,SLOT(OnDeleteButtonClicked()));
         connect(m_Controls->viewInternalDataButton, SIGNAL(clicked()), this , SLOT(OnViewButtonClicked()));
@@ -58,24 +65,30 @@ void QmitkDicomLocalStorageWidget::CreateQtPartControl( QWidget *parent )
 
         connect(m_LocalIndexer, SIGNAL(indexingComplete()),this, SIGNAL(SignalFinishedImport()));
 
-        m_Controls->ctkDicomBrowser->setTableOrientation(Qt::Vertical);
+        //m_Controls->ctkDicomBrowser->setTableOrientation(Qt::Vertical);
     }
 }
 
 void QmitkDicomLocalStorageWidget::OnStartDicomImport(const QString& dicomData)
 {
+	qDebug() << "Yes the dicom file has been imported";
     if(m_LocalDatabase->isOpen())
     {
         m_LocalIndexer->addDirectory(*m_LocalDatabase,dicomData,m_LocalDatabase->databaseDirectory());
+		qDebug() << "Yes the directory has been added";
     }
+	m_Controls->ctkDicomBrowser->updateTableViews();
 }
 
 void QmitkDicomLocalStorageWidget::OnStartDicomImport(const QStringList& dicomData)
 {
+	qDebug() << "Yes the dicom FILES has been imported";
     if(m_LocalDatabase->isOpen())
     {
+		qDebug() << "Yes the directory has been added and the database is at" << m_LocalDatabase->databaseDirectory();
         m_LocalIndexer->addListOfFiles(*m_LocalDatabase,dicomData,m_LocalDatabase->databaseDirectory());
     }
+	m_Controls->ctkDicomBrowser->updateTableViews();
 }
 
 void QmitkDicomLocalStorageWidget::OnDeleteButtonClicked()
@@ -192,20 +205,37 @@ bool QmitkDicomLocalStorageWidget::DeleteSeries()
 
 void QmitkDicomLocalStorageWidget::OnViewButtonClicked()
 {
-  QStringList uids = m_Controls->ctkDicomBrowser->currentSeriesSelection();
-  QString uid;
-  foreach (uid, uids)
-  {
-    QStringList filesForSeries = m_LocalDatabase->filesForSeries(uid);
-    QHash<QString, QVariant> eventProperty;
-    eventProperty.insert("FilesForSeries", filesForSeries);
-    if(!filesForSeries.isEmpty())
-    {
-      QString modality = m_LocalDatabase->fileValue(filesForSeries.at(0),"0008,0060");
-      eventProperty.insert("Modality", modality);
-    }
-    emit SignalDicomToDataManager(eventProperty);
-  }
+	QStringList uids = m_Controls->ctkDicomBrowser->currentSeriesSelection();
+	QString uid;
+	//
+	// following are original MITK code 
+	//
+	//foreach (uid, uids)
+	//{
+	//  QStringList filesForSeries = m_LocalDatabase->filesForSeries(uid);
+	//  QHash<QString, QVariant> eventProperty;
+	//  eventProperty.insert("FilesForSeries", filesForSeries);
+	//  if(!filesForSeries.isEmpty())
+	//  {
+	//    QString modality = m_LocalDatabase->fileValue(filesForSeries.at(0),"0008,0060");
+	//    eventProperty.insert("Modality", modality);
+	//  }
+	//  emit SignalDicomToDataManager(eventProperty);
+	//}
+	QStringList filePaths;
+	foreach(uid, uids)
+	{
+		filePaths.append(m_LocalDatabase->filesForSeries(uid));
+
+	}
+	if (filePaths.size() == 0)
+	{
+		QMessageBox info;
+		info.setText("You have to select an entry in the dicom browser for viewing.");
+		info.exec();
+		return;
+	}
+	emit SignalDicomToDataManager(filePaths);
 }
 
 void QmitkDicomLocalStorageWidget::SetDatabaseDirectory(QString newDatatbaseDirectory)

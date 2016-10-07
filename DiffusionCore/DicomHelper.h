@@ -50,6 +50,7 @@ public:
 	float scaleIntercept;
 	int numberOfGradDirection;
 	int numberOfBValue;
+	int numberOfComponents;
 	int IsoImageLabel = -1; // -1 means no isotropic image
 
 	std::vector <float> BvalueList;
@@ -65,6 +66,7 @@ public:
 		GradientDirectionContainerType;
 	GradientDirectionContainerType::Pointer gradientDirection;
 	int DiffusionSeryNumber;
+	int imageDimensions[3];
 
 private:
 
@@ -75,6 +77,6 @@ private:
 
 	void DicomHelper::CalculateFinalHMatrix();
 	void DicomHelper::GetSliceToPatMatrix();
-
+	void DicomHelper::UpdateGradDirectionNumber();
 
 };

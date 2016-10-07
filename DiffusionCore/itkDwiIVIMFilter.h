@@ -89,6 +89,9 @@ namespace itk
 		void operator=(const Self &);//ITK_DELETE_FUNCTION;
 
 		unsigned int m_NumOfIterations;
+		double m_GradientTolerence;
+		double m_ValueTolerence;
+		double m_EpsilonFunction;
 		std::vector<TInputPixelType> m_BValueList;
 		const InputImageType * m_InputImage;
 		OutputImageType * m_OutputImage;

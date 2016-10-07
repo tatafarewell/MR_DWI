@@ -69,7 +69,7 @@ namespace itk
 		// class does not provide a derivative, any optimizer using this
 		// cost function must be told explicitly not to ask for derivative,
 		// otherwise an exception will the thrown.
-		// Define later
+		// Define later to compare its accuracy and speed with default gradoff
 		void GetDerivative(const ParametersType &parameters, DerivativeType & derivative) const
 		{
 			std::cout << "Derivative not implemented yet, use LM without gradient J" << std::endl;
