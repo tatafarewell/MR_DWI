@@ -1,20 +1,4 @@
-/*===================================================================
 
-The Medical Imaging Interaction Toolkit (MITK)
-
-Copyright (c) German Cancer Research Center,
-Division of Medical and Biological Informatics.
-All rights reserved.
-
-This software is distributed WITHOUT ANY WARRANTY; without
-even the implied warranty of MERCHANTABILITY or FITNESS FOR
-A PARTICULAR PURPOSE.
-
-See LICENSE.txt or http://www.mitk.org for details.
-
-===================================================================*/
-
-// Qmitk
 #include "QmitkDicomLocalStorageWidget.h"
 #include "ui_QmitkDicomLocalStorageWidgetControls.h"
 
@@ -24,7 +8,6 @@ See LICENSE.txt or http://www.mitk.org for details.
 #include <QVariant>
 #include <QMessageBox>
 
-//const std::string QmitkDicomLocalStorageWidget::Widget_ID = "org.mitk.Widgets.QmitkDicomLocalStorageWidget";
 
 QmitkDicomLocalStorageWidget::QmitkDicomLocalStorageWidget(QWidget *parent)
   : QWidget(parent)
@@ -48,7 +31,7 @@ void QmitkDicomLocalStorageWidget::CreateQtPartControl( QWidget *parent )
 {
     if ( !m_Controls )
     {
-        m_Controls = new Ui::QmitkDicomLocalStorageWidgetControls;
+		m_Controls = new Ui::QmitkDicomLocalStorageWidgetControls;
         m_Controls->setupUi( parent );
 		m_Controls->ctkDicomBrowser->setTableOrientation(Qt::Vertical);
 		m_Controls->ctkDicomBrowser->setDICOMDatabase(m_LocalDatabase);

@@ -20,9 +20,9 @@ find_package(CTK REQUIRED)
 include(${CTK_USE_FILE})
 
 set( Srcs 
-    #cDWiFilter.cpp 
     DicomHelper.cpp
     DiffusionCore.cpp
+	VTKtoITK.cpp
     )
 
 set( Hdrs 
@@ -37,7 +37,12 @@ set( Hdrs
      itkDisplayOptimizer.hxx
      itkMaskVectorImageFilter.h
      itkMaskVectorImageFilter.hxx
+	 itkTensor.h
+	 itkTensor.hxx
+	 itkGetDiffusionImageFilter.h
+	 itkGetDiffusionImageFilter.hxx
      itkVtkAllHeaders.h
+	 VTKtoITK.h
      DicomHelper.h
      DiffusionCore.h
    )
@@ -62,7 +67,7 @@ target_link_libraries(DiffusionCore ${ITK_LIBRARIES} ${VTK_LIBRARIES} ${Glue} CT
 # if(VTK_LIBRARIES)
   # target_link_libraries(DiffusionCore ${VTK_LIBRARIES})
 # else()
-  #target_link_libraries(DiffusionCore vtkHybrid vtkWidgets)
+  # target_link_libraries(DiffusionCore vtkHybrid vtkWidgets)
 # endif()
 
 

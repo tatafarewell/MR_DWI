@@ -41,7 +41,7 @@
          </sizepolicy>
         </property>
         <property name="frameShape">
-         <enum>QFrame::Box</enum>
+         <enum>QFrame::NoFrame</enum>
         </property>
         <property name="frameShadow">
          <enum>QFrame::Sunken</enum>
@@ -56,7 +56,7 @@
             <string>View</string>
            </property>
            <property name="icon">
-            <iconset resource="resources/dicom.qrc">
+            <iconset>
              <normaloff>:/org.mitk.gui.qt.dicom/viewIcon.png</normaloff>:/org.mitk.gui.qt.dicom/viewIcon.png</iconset>
            </property>
            <property name="iconSize">
@@ -130,7 +130,6 @@
   </customwidget>
  </customwidgets>
  <resources>
-  <include location="resources/dicom.qrc"/>
   <include location="resources/dicom.qrc"/>
  </resources>
  <connections/>

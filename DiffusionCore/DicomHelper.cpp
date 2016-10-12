@@ -36,6 +36,8 @@ void DicomHelper::DicomInfo()
 	if (meta->HasAttribute(DICOM_NO_DIFF_GRAD_ORIENT))
 	{
 		numberOfGradDirection = meta->GetAttributeValue(DICOM_NO_DIFF_GRAD_ORIENT).AsInt();
+		if (numberOfGradDirection > 6)
+			tensorComputationPossible = true;
 	}
 
 	if (meta->HasAttribute(DICOM_DIFF_B_FACTOR))
@@ -55,12 +57,14 @@ void DicomHelper::DicomInfo()
 		}
 	}
 
-	if (meta->HasAttribute(DICOM_IMAGE_ORIENTATION))
+	if (tensorComputationPossible)
 	{
-		//std::string image_orientation;
-		image_orientation = meta->GetAttributeValue(DICOM_IMAGE_ORIENTATION).GetCharData();
-		//cout << image_orientation << endl;
-	}
+
+		if (meta->HasAttribute(DICOM_IMAGE_ORIENTATION))
+		{
+			//std::string image_orientation;
+			image_orientation = meta->GetAttributeValue(DICOM_IMAGE_ORIENTATION).GetCharData();
+		}
 
 	if (meta->HasAttribute(DICOM_IMGANG_RL) && meta->HasAttribute(DICOM_IMGANG_FH) && meta->HasAttribute(DICOM_IMGANG_AP))
 	{
@@ -102,14 +106,14 @@ void DicomHelper::DicomInfo()
 						++directionIterator;
 					}
 
+					}
 				}
 			}
+			if (IsoImageLabel > -1)
+				numberOfGradDirection = numberOfGradDirection - 1;
+			CalculateFinalHMatrix();
 		}
-		if (IsoImageLabel > -1)
-			numberOfGradDirection = numberOfGradDirection - 1;
-		CalculateFinalHMatrix();
 	}
-	//cout << "number of gradient direction: " << numberOfGradDirection << endl;
 };
 
 void DicomHelper::CalculateFinalHMatrix()

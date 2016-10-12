@@ -23,6 +23,7 @@ class MainWindow;
 }
 
 class Ui_MainWindow;
+class DicomModule;
 
 class MainWindow : public QMainWindow
 {
@@ -47,17 +48,17 @@ public:
 signals:
 
 
-public slots:
+	public slots :
 
-
-protected slots:
-
+	protected slots :
+	void onStartdicom();
+	void onDicomLoaded(bool);
 
 private:
 
 
 	Ui::MainWindow *ui;
-
+	DicomModule * DicomUI;
 };
 
 #endif // MAINWINDOW_H

@@ -48,7 +48,7 @@ namespace itk
 		{
 			for (int direction = 0; direction < m_NumOfDiffDirections; direction++)
 			{				
-				outputResultVector[direction] = -inputIt.Get()[2 * direction + 1] * m_ComputedBValue + inputIt.Get()[2 * direction];
+				outputResultVector[direction] = exp(-inputIt.Get()[2 * direction + 1] * m_ComputedBValue + inputIt.Get()[2 * direction]);
 			}
 			outputIt.Set(outputResultVector);
 			++inputIt;

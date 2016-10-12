@@ -52,6 +52,7 @@ public:
 	int numberOfBValue;
 	int numberOfComponents;
 	int IsoImageLabel = -1; // -1 means no isotropic image
+	bool tensorComputationPossible = false;
 
 	std::vector <float> BvalueList;
 	std::vector <float> directionLabel;

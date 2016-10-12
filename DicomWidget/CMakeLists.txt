@@ -18,13 +18,13 @@ find_package(CTK REQUIRED)
 include(${CTK_USE_FILE})
 
 # Set your files and resources here
-set( Srcs QmitkDicomExternalDataWidget.cpp QmitkDicomLocalStorageWidget.cpp )
+set( Srcs QmitkDicomExternalDataWidget.cpp QmitkDicomLocalStorageWidget.cpp DicomModule.cpp )
 
-set( Hdrs QmitkDicomExternalDataWidget.h QmitkDicomLocalStorageWidget.h)
+set( Hdrs QmitkDicomExternalDataWidget.h QmitkDicomLocalStorageWidget.h DicomModule.h)
 
-set( MOC_Hdrs QmitkDicomExternalDataWidget.h QmitkDicomLocalStorageWidget.h)
+set( MOC_Hdrs QmitkDicomExternalDataWidget.h QmitkDicomLocalStorageWidget.h DicomModule.h)
 
-set( UIs QmitkDicomExternalDataWidgetControls.ui QmitkDicomLocalStorageWidgetControls.ui)
+set( UIs QmitkDicomLocalStorageWidgetControls.ui QmitkDicomExternalDataWidgetControls.ui DicomModule.ui)
 
 include_directories(
   ${CMAKE_CURRENT_BINARY_DIR}

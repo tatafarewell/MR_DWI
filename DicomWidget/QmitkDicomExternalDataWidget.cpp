@@ -1,20 +1,3 @@
-/*===================================================================
-
-The Medical Imaging Interaction Toolkit (MITK)
-
-Copyright (c) German Cancer Research Center,
-Division of Medical and Biological Informatics.
-All rights reserved.
-
-This software is distributed WITHOUT ANY WARRANTY; without
-even the implied warranty of MERCHANTABILITY or FITNESS FOR
-A PARTICULAR PURPOSE.
-
-See LICENSE.txt or http://www.mitk.org for details.
-
-===================================================================*/
-
-
 
 #include "QmitkDicomExternalDataWidget.h"
 #include "ui_QmitkDicomExternalDataWidgetControls.h"
@@ -26,7 +9,6 @@ See LICENSE.txt or http://www.mitk.org for details.
 #include <QCheckBox>
 #include <QMessageBox>
 
-//const std::string QmitkDicomExternalDataWidget::Widget_ID = "DicomUI.QmitkDicomExternalDataWidget";
 
 QmitkDicomExternalDataWidget::QmitkDicomExternalDataWidget(QWidget *parent)
   : QWidget(parent)
@@ -48,7 +30,7 @@ void QmitkDicomExternalDataWidget::CreateQtPartControl( QWidget *parent )
     if ( !m_Controls )
     {
         // create GUI widgets from the Qt Designer's .ui file
-        m_Controls = new Ui::QmitkDicomExternalDataWidgetControls;
+		m_Controls = new Ui::QmitkDicomExternalDataWidgetControls;
         m_Controls->setupUi( parent );
         m_Controls->viewExternalDataButton->setVisible(true);
         m_Controls->ctkDICOMBrowser->setTableOrientation(Qt::Vertical);

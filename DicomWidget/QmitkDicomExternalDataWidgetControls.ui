@@ -32,7 +32,7 @@
          </sizepolicy>
         </property>
         <property name="frameShape">
-         <enum>QFrame::Box</enum>
+         <enum>QFrame::NoFrame</enum>
         </property>
         <property name="frameShadow">
          <enum>QFrame::Sunken</enum>
@@ -44,7 +44,7 @@
             <string>Scan directory</string>
            </property>
            <property name="icon">
-            <iconset resource="resources/dicom.qrc">
+            <iconset>
              <normaloff>:/org.mitk.gui.qt.dicom/folder_32.png</normaloff>:/org.mitk.gui.qt.dicom/folder_32.png</iconset>
            </property>
           </widget>
@@ -58,7 +58,7 @@
             <string>Add to local storage</string>
            </property>
            <property name="icon">
-            <iconset resource="resources/dicom.qrc">
+            <iconset>
              <normaloff>:/org.mitk.gui.qt.dicom/import_32.png</normaloff>:/org.mitk.gui.qt.dicom/import_32.png</iconset>
            </property>
           </widget>
@@ -72,7 +72,7 @@
             <string>View</string>
            </property>
            <property name="icon">
-            <iconset resource="resources/dicom.qrc">
+            <iconset>
              <normaloff>:/org.mitk.gui.qt.dicom/viewIcon.png</normaloff>:/org.mitk.gui.qt.dicom/viewIcon.png</iconset>
            </property>
            <property name="iconSize">
@@ -131,8 +131,6 @@
    <container>1</container>
   </customwidget>
  </customwidgets>
- <resources>
-  <include location="resources/dicom.qrc"/>
- </resources>
+ <resources/>
  <connections/>
 </ui>

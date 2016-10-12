@@ -25,6 +25,7 @@ DWI Core UI
 
 #include <QWidget>
 #include <qdebug.h>
+
 //#include "QVTKWidget.h"
 
 class ctkFileDialog;
@@ -40,7 +41,7 @@ class QVTKWidget;
 * \sa 
 * \ingroup 
 */
-
+#define MAXWINDOWNUMBER 5 //difine the busiest viewing window layout as 5 by 5
 class DiffusionCore : public QWidget
 {
 	// this is needed for all Qt objects that should have a Qt meta-object
@@ -75,72 +76,112 @@ public:
 	*/
 	void Initialize();
 
+
 signals:
 
-	///// @brief emitted when import into database is finished.
-	//void SignalStartDicomImport(const QStringList&);
-
-
-	///// @brief emitted when view button is clicked.
-	//void SignalDicomToDataManager(QHash<QString, QVariant>);
-
-
+	///// @brief emitted when dicomdata is imported.
+	void SignalDicomLoaded(bool);
 
 	public slots:
 
-	/// @brief Called when dicom files were input.
+	///// @brief 
+	///// In this slot,  render input dicom files.
+	///// 
 	void OnImageFilesLoaded(const QStringList&);
 
 	protected slots:
 
 	///// @brief
-	///// In this slot, implement the adc calculation
-	///// This causes a model update.
-	void calcADC(bool toggle);
+	///// In this slot, call adc calculation and render the image
+	///// 
+	void onCalcADC(bool toggle);
 
 	///// @brief
-	///// In this slot, implement the cDWI calculation and image rendering
+	///// In this slot, call cdwi calculation and render the image
 	///// 
-	void calcCDWI(bool toggle);
-
-	void calcEADC(bool toggle);
+	void onCalcCDWI(bool toggle);
 
 	///// @brief
-	///// In this slot, implement the cdwi calculation with input bvalue
+	///// In this slot, call eADC calculation and render the image
 	///// 
-	void cDWI(double bvalue);
+	void onCalcEADC(bool toggle);
 
 	///// @brief
-	///// In this slot, implement the filtering with input threshhold
+	/////In this slot, call FA calculation and render the image
 	///// 
-	void adc(double threshhold);
+	void onCalcFA(bool toggle);
+
+	///// @brief
+	///// In this slot, call colorFA calculation and render the image
+	/////
+	void onCalcColorFA(bool toggle);
+
+	///// @brief
+	///// In this slot, call IVIM calculation and render the image
+	///// 
+	void onCalcIVIM(bool toggle);
+
+	///// @brief
+	///// In this slot, update the cdwi image with input bvalue
+	///// 
+	void onBSlide(double bvalue);
+
+	///// @brief
+	///// In this slot, update the adc image with filtering using input threshhold
+	///// 
+	void onThreshSlide(double threshhold);
+
+	//void outputMOUSEevent(QMouseEvent*);
 
 protected:
+	enum imageType
+	{
+		ORIGINAL = 0,
+		ADC = 1,
+		CDWI = 2,
+		EADC = 3,
+		FA = 4,
+		CFA = 5,
+		IVIM = 6,
+		NOIMAGE = 100
+	};
 
 	Ui::DiffusionModule* m_Controls;
 	DicomHelper *m_DicomHelper;//initialization? 
 	//QString m_LastImportDirectory;
+
 	void DisplayDicomInfo(vtkSmartPointer <vtkImageData> imageData);
 	void SourceImageViewer2D(vtkSmartPointer <vtkImageData>, QVTKWidget *qvtkWidget);
-	void QuantitativeImageViewer2D(vtkSmartPointer <vtkImageData>, QVTKWidget *qvtkWidget);
+	void QuantitativeImageViewer2D(vtkSmartPointer <vtkImageData>, QVTKWidget *qvtkWidget, std::string imageLabel);
 	void TestCallbackFunc(vtkObject *caller, long unsigned int eventId, void *clientData, void* callData);
+	void ShareWindowEvent();
 
+	void AdcCalculator(vtkSmartPointer <vtkImageData> imageData);
+    void FaCalculator(vtkSmartPointer <vtkImageData> imageData);
+	void ColorFACalculator(vtkSmartPointer <vtkImageData> imageData);
+	void EAdcCalculator(vtkSmartPointer <vtkImageData> imageData);	
+	void ComputedDwi(vtkSmartPointer <vtkImageData> imageData);
+
+	void ui_InsertWindow(int& rowInd, int& colInd, QVTKWidget *vtkWindow, imageType imageLabel);
+	void ui_RemoveWindow(imageType a);
+	bool ui_IsWdWSquare();
+	void ui_dumpWindow(int row, int col);
+	void ui_reDrawAllWdw();
 
 protected:
-	vtkSmartPointer< vtkImageData > sourceImage;
+	vtkSmartPointer < vtkImageData > sourceImage;
 	vtkSmartPointer <vtkRenderWindowInteractor> m_RenderWindowInteractor;
 	vtkSmartPointer< vtkImageData > cacheImage;
 	int m_SourceImageCurrentSlice;
 	int m_QuantitativeImageCurrentSlice;
+	//bool m_SourceImageIntera
 	double m_MaskThreshold;
-	double m_ComputedBValue;
+	double m_ComputedBValue;	
+	std::vector< std::vector<int> > layoutTable; // Table used for tracing window content
+
 };
 
 
-//class DiffusionCore : public QVTKWidget
-//{
-//	protected:
-//}
 
 #endif //
 
