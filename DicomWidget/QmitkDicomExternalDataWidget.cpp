@@ -8,6 +8,7 @@
 // Qt
 #include <QCheckBox>
 #include <QMessageBox>
+#include "qdebug.h"
 
 
 QmitkDicomExternalDataWidget::QmitkDicomExternalDataWidget(QWidget *parent)
@@ -64,7 +65,7 @@ void QmitkDicomExternalDataWidget::Initialize()
     try{
         m_ExternalDatabase->openDatabase(QString(":memory:"),QString( "EXTERNAL-DB"));
     }catch(std::exception e){
-        qDebug() <<"Database error: "<< m_ExternalDatabase->lastError();
+		qDebug() << "Database error: " << m_ExternalDatabase->lastError();
         m_ExternalDatabase->closeDatabase();
         return;
     }
@@ -80,6 +81,16 @@ void QmitkDicomExternalDataWidget::OnFinishedImport()
 void QmitkDicomExternalDataWidget::OnDownloadButtonClicked()
 {
   QStringList filesToDownload = GetFileNamesFromIndex();
+
+  //remove those filepath named "/PS_" or "/XX_"
+  for (QList<QString>::Iterator it = filesToDownload.begin(); it<filesToDownload.end(); it++)
+  {
+	  if ((*it).indexOf("/XX_")>0 || (*it).indexOf("/PS_")>0)
+	  {	 
+		  filesToDownload.erase(it);		
+	  }
+  }
+
   if (filesToDownload.size() == 0)
   {
     QMessageBox info;
@@ -87,7 +98,7 @@ void QmitkDicomExternalDataWidget::OnDownloadButtonClicked()
     info.exec();
     return;
   }
-    emit SignalStartDicomImport(GetFileNamesFromIndex());
+  emit SignalStartDicomImport(filesToDownload);
 }
 
 void QmitkDicomExternalDataWidget::OnViewButtonClicked()
@@ -113,8 +124,24 @@ void QmitkDicomExternalDataWidget::OnViewButtonClicked()
   foreach(uid, uids)
   {
 	  filePaths.append(m_ExternalDatabase->filesForSeries(uid));
-
+	  qDebug() << "Files for This UID: " << m_ExternalDatabase->filesForSeries(uid) << endl;
+	  qDebug() << "Description for this UID: " << m_ExternalDatabase->descriptionForSeries(uid) << endl;
   }
+
+  //remove those filepath named "/PS_" or "/XX_"
+  for (QList<QString>::Iterator it = filePaths.begin(); it<filePaths.end();it++)
+  {
+	  //QRegExp nonIM("*XX_*");
+	  //xxFiles = filePaths.indexOf("/XX_");
+	  //std::cout << "xx and PS " << nonIM.indexIn(*it);
+	  if ((*it).indexOf("/XX_")>0 || (*it).indexOf("/PS_")>0)
+	  { 
+	  //filePaths.removeAt(xxFiles);		 
+		  filePaths.erase(it);
+		  //std::cout << " a File is removed" << std::endl;
+	  }
+  }
+
   if (filePaths.size() == 0)
   {
 	  QMessageBox info;

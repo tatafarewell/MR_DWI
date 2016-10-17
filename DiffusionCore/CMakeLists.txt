@@ -33,6 +33,8 @@ set( Hdrs
      itkDwiIVIMCostFunction.h
      itkDwiIVIMFilter.hxx
      itkDwiIVIMFilter.h
+	 itkComputedEadcFilter.h
+	 itkComputedEadcFilter.hxx
      itkDisplayOptimizer.h
      itkDisplayOptimizer.hxx
      itkMaskVectorImageFilter.h

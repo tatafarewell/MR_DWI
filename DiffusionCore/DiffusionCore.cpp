@@ -45,7 +45,7 @@ DiffusionCore::DiffusionCore(QWidget *parent)
 	CreateQtPartControl(this);
 
 	this->m_DicomHelper = nullptr;
-	this->m_MaskThreshold = 20;
+	this->m_MaskThreshold = 3;
 	this->m_ComputedBValue = 2000;
 }
 
@@ -70,11 +70,11 @@ void DiffusionCore::CreateQtPartControl(QWidget *parent)
 		m_Controls->bSlider->setTickInterval(100);
 		m_Controls->bSlider->setValue(2000);
 		m_Controls->bSlider->setTracking(false);
-		m_Controls->ThreshSlider->setMaximum(200); //maximum threshhold value;
+		m_Controls->ThreshSlider->setMaximum(100); //maximum threshhold value;
 		m_Controls->ThreshSlider->setDecimals(0);
-		m_Controls->ThreshSlider->setSingleStep(5);
-		m_Controls->ThreshSlider->setTickInterval(5);
-		m_Controls->ThreshSlider->setValue(20);
+		m_Controls->ThreshSlider->setSingleStep(1);
+		m_Controls->ThreshSlider->setTickInterval(1);
+		m_Controls->ThreshSlider->setValue(10);
 		m_Controls->ThreshSlider->setTracking(false);
 		//connect Buttons and handle visibility
 
@@ -111,13 +111,56 @@ void DiffusionCore::OnImageFilesLoaded(const QStringList& fileLists)
 	this->m_Controls->ADCTool->setEnabled(true);
 	this->m_Controls->DTITool->setEnabled(true);
 
-	//this->m_Controls->adcToggle->setEnabled(true);
-	//this->m_Controls->eadcToggle->setEnabled(true);
-	//this->m_Controls->cdwiToggle->setEnabled(true);
-	//this->m_Controls->faToggle->setEnabled(true);
-	//this->m_Controls->colorFAToggle->setEnabled(true);
-	//this->m_Controls->ivimToggle->setEnabled(true);
+	//Check if Original Images exist or not
+	//QLayoutItem *existItem = this->m_Controls->displayLayout->itemAtPosition(0, 0);
+	//QWidget * existWidget = existItem->widget();
+	std::cout << this->m_Controls->displayLayout->rowCount() << "-" << this->m_Controls->displayLayout->columnCount() << std::endl;
+	//if (this->m_Controls->displayLayout->rowCount() > 0 || this->m_Controls->displayLayout->columnCount() > 0) //if original image exists, delete all image windows. 
+	if (layoutTable.size()>0)
+	{
+		for (int i = 0; i < layoutTable.size(); i++)
+		{
+			for (int j = 0; j < layoutTable[i].size(); j++)
+			{
+				ui_dumpWindow(i, j);
+			}
+		}	
 
+		layoutTable.erase(layoutTable.begin(), layoutTable.end());				
+
+		m_Controls->adcToggle->blockSignals(true);
+		m_Controls->adcToggle->setChecked(false);
+		m_Controls->adcToggle->blockSignals(false);
+
+		m_Controls->eadcToggle->blockSignals(true);
+		m_Controls->eadcToggle->setChecked(false);
+		m_Controls->eadcToggle->blockSignals(false);
+
+		m_Controls->cdwiToggle->blockSignals(true);
+		m_Controls->cdwiToggle->setChecked(false);
+		m_Controls->cdwiToggle->blockSignals(false);
+
+		m_Controls->faToggle->blockSignals(true);
+		m_Controls->faToggle->setChecked(false);
+		m_Controls->faToggle->blockSignals(false);
+
+		m_Controls->colorFAToggle->blockSignals(true);
+		m_Controls->colorFAToggle->setChecked(false);
+		m_Controls->colorFAToggle->blockSignals(false);
+
+		m_Controls->ivimToggle->blockSignals(true);
+		m_Controls->ivimToggle->setChecked(false);
+		m_Controls->ivimToggle->blockSignals(false);
+
+		this->m_Controls->adcToggle->setEnabled(true);
+		this->m_Controls->eadcToggle->setEnabled(true);
+		this->m_Controls->cdwiToggle->setEnabled(true);
+		this->m_Controls->faToggle->setEnabled(true);
+		this->m_Controls->colorFAToggle->setEnabled(true);
+		this->m_Controls->ivimToggle->setEnabled(true);
+	}
+
+	//load data
 	vtkStringArray* loadingFiles = vtkStringArray::New();
 	loadingFiles->SetNumberOfValues(fileLists.size());
 	for (int i = 0; i < fileLists.size(); i++)
@@ -128,14 +171,9 @@ void DiffusionCore::OnImageFilesLoaded(const QStringList& fileLists)
 	this->m_DicomHelper = new DicomHelper(loadingFiles);
 	this->sourceImage = m_DicomHelper->DicomReader->GetOutput();
 
-	//DisplayDicomInfo(sourceImage);
+	DisplayDicomInfo(sourceImage);
 
-
-	//Tmp used here, add to dicomhelper 
-	//int dim[3];
-	//this->sourceImage->GetDimensions(dim);
-	////m_SourceImageMaxSlice = dim[2] - 1;
-	//qDebug() << "B value ="<<dicomHelp.numberOfBValue << endl;
+ 
 
 	if (!m_DicomHelper->tensorComputationPossible)
 	{
@@ -167,12 +205,23 @@ void DiffusionCore::OnImageFilesLoaded(const QStringList& fileLists)
 	}
 	
 	QVTKWidget *vtkWindow1 = new QVTKWidget;
-	this->m_Controls->displayLayout->addWidget(vtkWindow1, 0, 0, 1, 1);	
+	this->m_Controls->displayLayout->addWidget(vtkWindow1, 0, 0);
 	//update the layout table
 	std::vector<int> row1; row1.push_back(0);
 	layoutTable.push_back(row1);
 
-	std::cout << "Emitting signal" << std::endl;
+	std::vector<std::vector<int>>::iterator rowit;
+	std::vector<int>::iterator colit;
+	for (rowit = layoutTable.begin(); rowit != layoutTable.end(); rowit++)
+	{
+		std::cout << "[GRIDLAYOUT DEBUG INFO] BEFORE REORDER WINDOW>>>>>>>> |";
+		for (colit = (*rowit).begin(); colit != (*rowit).end(); ++colit)
+		{
+			std::cout << *colit << " ";
+		}
+		std::cout << "|" << std::endl;
+	}
+
 	emit SignalDicomLoaded(true);
 
 	SourceImageViewer2D(this->sourceImage, vtkWindow1);
@@ -205,7 +254,7 @@ void DiffusionCore::onCalcADC(bool _istoggled) //It's a SLOT!!!
 	else
 	{
 		//Hide Threshhold bar
-		this->m_Controls->Thresh->setVisible(_istoggled);
+		//this->m_Controls->Thresh->setVisible(_istoggled);
 
 		//initialize first: clear up the widget 
 		//Or should we just clear the renderer in current window?
@@ -236,15 +285,28 @@ void DiffusionCore::AdcCalculator(vtkSmartPointer <vtkImageData> imageData)
 	ExtractVOI->SetInputData(this->sourceImage);
 	ExtractVOI->SetVOI(0, this->m_DicomHelper->imageDimensions[0] - 1, 0, this->m_DicomHelper->imageDimensions[1] - 1, m_SourceImageCurrentSlice, m_SourceImageCurrentSlice);
 	ExtractVOI->Update();
-	std::cout << "---------------------------- VOI is correct ? ---------------------" << std::endl;
-	this->DisplayDicomInfo(ExtractVOI->GetOutput());
+	//std::cout << "---------------------------- VOI is correct ? ---------------------" << std::endl;
+	//this->DisplayDicomInfo(ExtractVOI->GetOutput());
+	//std::cout << "---------------------------- End of VOI ---------------------" << std::endl;
 
+	//PR: mask image doesn't change for slices other than the first one whlie sliding the maskthreshold slider
+	//fix extent range here, default z extent is m_SourceImageCurrentSlice to m_SourceImageCurrentSlice;
+	//Update image extent, otherwise maskFilter won't work for slices other than the first one (because seed starts at origin)
+	//Update the origin as well
+	vtkSmartPointer <vtkImageChangeInformation> changeInfo = vtkSmartPointer <vtkImageChangeInformation>::New();
+	changeInfo->SetInputData(ExtractVOI->GetOutput());
+	changeInfo->SetOutputOrigin(0, 0, 0);
+	changeInfo->SetExtentTranslation(0, 0, -m_SourceImageCurrentSlice);
+	changeInfo->Update();
+	//std::cout << "---------------------------- translateExtent is correct ? ---------------------" << std::endl;
+	//this->DisplayDicomInfo(changeInfo->GetOutput());
+	//std::cout << "---------------------------- End of translateExtent ---------------------" << std::endl;
 
 	for (int i = 0; i < this->m_DicomHelper->numberOfComponents; i++)
 	{
 		//Handle each scalar component indivisually
 		vtkSmartPointer <vtkImageExtractComponents> scalarComponent = vtkSmartPointer <vtkImageExtractComponents>::New();
-		scalarComponent->SetInputData(ExtractVOI->GetOutput());
+		scalarComponent->SetInputData(changeInfo->GetOutput());
 		scalarComponent->SetComponents(i);
 		scalarComponent->Update();//Crutial, otherwise abort after running
 
@@ -292,18 +354,18 @@ void DiffusionCore::AdcCalculator(vtkSmartPointer <vtkImageData> imageData)
 	typedef itk::MaskVectorImageFilter <float> MaskFilterType;
 	MaskFilterType::Pointer maskFilter = MaskFilterType::New();
 	maskFilter->SetInput(imageToVectorImageFilter->GetOutput());//input is a Image Pointer!!!
-	maskFilter->SetMaskThreshold(m_MaskThreshold / m_DicomHelper->scaleSlope);//Get from UI or user-interaction
+	maskFilter->SetMaskThreshold(m_MaskThreshold);//Get from UI or user-interaction
 	maskFilter->Update();//output is a Image Pointer!!!
 	//std::cout << "maskFilter: vectorLength = " << maskFilter->GetOutput()->GetVectorLength() << std::endl;
 
-	std::cout << "------------- AdcMapFilter begin runing ----------- " << std::endl;
+	//std::cout << "------------- AdcMapFilter begin runing ----------- " << std::endl;
 	// Adc Map filter
 	typedef itk::AdcMapFilter <float, float> AdcMapFilterType;
 	AdcMapFilterType::Pointer adcMap = AdcMapFilterType::New();
 	adcMap->SetInput(maskFilter->GetOutput());
 	adcMap->SetBValueList(this->m_DicomHelper->BvalueList);
 	adcMap->Update();
-	std::cout << "------------- AdcMapFilter end runing ----------- " << std::endl;
+	//std::cout << "------------- AdcMapFilter end runing ----------- " << std::endl;
 	//std::cout << "adcVectorImage: vectorLength = " << adcMap->GetOutput()->GetVectorLength() << std::endl;
 
 	//vector image to scalar image or imageContainer
@@ -318,7 +380,7 @@ void DiffusionCore::AdcCalculator(vtkSmartPointer <vtkImageData> imageData)
 	typedef itk::RescaleIntensityImageFilter < FloatImageType, FloatImageType> RescaleIntensityImageType;
 	RescaleIntensityImageType::Pointer rescaleFilter = RescaleIntensityImageType::New();
 	rescaleFilter->SetInput(vectorImageToImageFilter->GetOutput());
-	rescaleFilter->SetOutputMaximum(2000.0);
+	rescaleFilter->SetOutputMaximum(4095.0);
 	rescaleFilter->SetOutputMinimum(0.0);
 	rescaleFilter->Update();
 	//std::cout << "rescaleFilter: inputMaximum = " << rescaleFilter->GetInputMaximum() << std::endl;
@@ -342,14 +404,6 @@ void DiffusionCore::AdcCalculator(vtkSmartPointer <vtkImageData> imageData)
 	convItkToVtk->Update();
 
 	imageData->DeepCopy(convItkToVtk->GetOutput());
-	//Crutial not imageData = convItkToVtk->GetOutput(),
-	//Because convItkToVtk->Update() pointer is recycled after this caller!!!
-
-	//Visualize data
-	//QVTKWidget *vtkComputedDwiWindow = new QVTKWidget;
-	//this->m_Controls->displayLayout->addWidget(vtkComputedDwiWindow, 0, 1, 1, 1);
-	//this->m_Controls->displayLayout->update();
-	//QuantitativeImageViewer2D(convItkToVtk->GetOutput(), vtkComputedDwiWindow);
 }
 
 void DiffusionCore::onCalcEADC(bool _istoggled) //It's a SLOT!!!
@@ -370,7 +424,7 @@ void DiffusionCore::onCalcEADC(bool _istoggled) //It's a SLOT!!!
 	}
 	else
 	{
-		this->m_Controls->Thresh->setVisible(_istoggled);
+		//this->m_Controls->Thresh->setVisible(_istoggled);
 		
 		//clear up existing widget
 		ui_RemoveWindow(EADC);
@@ -383,6 +437,8 @@ void DiffusionCore::onCalcCDWI(bool _istoggled)
 
 	if (_istoggled)
 	{
+		//Set Threshhold bar visible
+		this->m_Controls->Thresh->setVisible(_istoggled);
 		this->m_Controls->cDWI->setVisible(_istoggled);		
 
 		QVTKWidget *vtkWindow = new QVTKWidget;
@@ -391,18 +447,20 @@ void DiffusionCore::onCalcCDWI(bool _istoggled)
 		ui_InsertWindow(rowInd, colInd, vtkWindow, CDWI);
 		
 		vtkSmartPointer <vtkImageData> computedDwi = vtkSmartPointer <vtkImageData>::New();
-		this->ComputedDwi(computedDwi);
+		this->CDWICalculator(computedDwi);
 		QuantitativeImageViewer2D(computedDwi, vtkWindow,"cDWI");
 	}
 	else
 	{
+		//Hide Threshhold bar
+		//this->m_Controls->Thresh->setVisible(_istoggled);
 		this->m_Controls->cDWI->setVisible(_istoggled);		
 		//clear up existing widget
 		ui_RemoveWindow(CDWI);
 	}
 }
 
-void DiffusionCore::ComputedDwi(vtkSmartPointer <vtkImageData> imageData)
+void DiffusionCore::CDWICalculator(vtkSmartPointer <vtkImageData> imageData)
 {
 	typedef itk::Image < unsigned short, 3> SrcImageType;
 	typedef itk::Image < float, 3> FloatImageType;
@@ -421,14 +479,24 @@ void DiffusionCore::ComputedDwi(vtkSmartPointer <vtkImageData> imageData)
 	ExtractVOI->SetInputData(this->sourceImage);
 	ExtractVOI->SetVOI(0, this->m_DicomHelper->imageDimensions[0] - 1, 0, this->m_DicomHelper->imageDimensions[1] - 1, m_SourceImageCurrentSlice, m_SourceImageCurrentSlice);
 	ExtractVOI->Update();
-	std::cout << "---------------------------- VOI is correct ?--------------------" << std::endl;
-	DisplayDicomInfo(ExtractVOI->GetOutput());
+	//std::cout << "---------------------------- VOI is correct ?--------------------" << std::endl;
+	//DisplayDicomInfo(ExtractVOI->GetOutput());
+
+	//PR: mask image doesn't change for slices other than the first one whlie sliding the maskthreshold slider
+	//fix extent range here, default z extent is m_SourceImageCurrentSlice to m_SourceImageCurrentSlice;
+	//Update image extent, otherwise maskFilter won't work for slices other than the first one (because seed starts at origin)
+	vtkSmartPointer <vtkImageChangeInformation> changeInfo = vtkSmartPointer <vtkImageChangeInformation>::New();
+	changeInfo->SetInputData(ExtractVOI->GetOutput());
+	changeInfo->SetOutputOrigin(0, 0, 0);
+	changeInfo->SetExtentTranslation(0, 0, -m_SourceImageCurrentSlice);
+	changeInfo->Update();
+
 
 	for (int i = 0; i < this->m_DicomHelper->numberOfComponents; i++)
 	{
-		//Handle each scalar component indivisually
+		//Handle each scalar component indiisually
 		vtkSmartPointer <vtkImageExtractComponents> scalarComponent = vtkSmartPointer <vtkImageExtractComponents>::New();
-		scalarComponent->SetInputConnection(ExtractVOI->GetOutputPort());
+		scalarComponent->SetInputConnection(changeInfo->GetOutputPort());
 		scalarComponent->SetComponents(i);
 		scalarComponent->Update();//Crutial, otherwise abort after running
 
@@ -476,18 +544,18 @@ void DiffusionCore::ComputedDwi(vtkSmartPointer <vtkImageData> imageData)
 	typedef itk::MaskVectorImageFilter <float> MaskFilterType;
 	MaskFilterType::Pointer maskFilter = MaskFilterType::New();
 	maskFilter->SetInput(imageToVectorImageFilter->GetOutput());//input is a Image Pointer!!!
-	maskFilter->SetMaskThreshold(m_MaskThreshold / m_DicomHelper->scaleSlope);//Get from UI or user-interaction
+	maskFilter->SetMaskThreshold(m_MaskThreshold);//Get from UI or user-interaction
 	maskFilter->Update();//output is a Image Pointer!!!
 	//std::cout << "maskFilter: vectorLength = " << maskFilter->GetOutput()->GetVectorLength() << std::endl;
 
-	std::cout << "------------- AdcMapFilter begin runing ----------- " << std::endl;
+	//std::cout << "------------- AdcMapFilter begin runing ----------- " << std::endl;
 	// Adc Map filter
 	typedef itk::AdcMapFilter <float, float> AdcMapFilterType;
 	AdcMapFilterType::Pointer adcMap = AdcMapFilterType::New();
 	adcMap->SetInput(maskFilter->GetOutput());
 	adcMap->SetBValueList(this->m_DicomHelper->BvalueList);
 	adcMap->Update();
-	std::cout << "------------- AdcMapFilter end runing ----------- " << std::endl;
+	//std::cout << "------------- AdcMapFilter end runing ----------- " << std::endl;
 	//std::cout << "adcVectorImage: vectorLength = " << adcMap->GetOutput()->GetVectorLength() << std::endl;
 
 	//cDwi filter
@@ -498,6 +566,7 @@ void DiffusionCore::ComputedDwi(vtkSmartPointer <vtkImageData> imageData)
 	computedDwi->SetComputedBValue(m_ComputedBValue);//Get from UI input
 	computedDwi->Update();
 	//std::cout << "cDWi vectorImage: vectorLength = " << computedDwi->GetOutput()->GetVectorLength() << std::endl;
+
 
 	//vector image to scalar image or imageContainer
 	typedef itk::VectorIndexSelectionCastImageFilter <itk::VectorImage<float, 3>, FloatImageType> VectorImageToImageType;
@@ -511,7 +580,7 @@ void DiffusionCore::ComputedDwi(vtkSmartPointer <vtkImageData> imageData)
 	typedef itk::RescaleIntensityImageFilter < FloatImageType, FloatImageType> RescaleIntensityImageType;
 	RescaleIntensityImageType::Pointer rescaleFilter = RescaleIntensityImageType::New();
 	rescaleFilter->SetInput(vectorImageToImageFilter->GetOutput());
-	rescaleFilter->SetOutputMaximum(2000.0);
+	rescaleFilter->SetOutputMaximum(4095.0);
 	rescaleFilter->SetOutputMinimum(0.0);
 	rescaleFilter->Update();
 	//std::cout << "rescaleFilter: inputMaximum = " << rescaleFilter->GetInputMaximum() << std::endl;
@@ -523,9 +592,6 @@ void DiffusionCore::ComputedDwi(vtkSmartPointer <vtkImageData> imageData)
 	displayOptimizer->SetInput(rescaleFilter->GetOutput());
 	displayOptimizer->SetCoveragePercent(0.98);//Default is 0.99
 	displayOptimizer->Update();
-
-	//std::cout << "rescaleFilter: inputMaximum = " << rescaleFilter->GetInputMaximum() << std::endl;
-	//std::cout << "rescaleFilter: inputMinimum = " << rescaleFilter->GetInputMinimum() << std::endl;
 
 	///////////////////////////////////////////
 	//ITK to VTK for visualization
@@ -539,22 +605,26 @@ void DiffusionCore::ComputedDwi(vtkSmartPointer <vtkImageData> imageData)
 
 void DiffusionCore::onThreshSlide(double maskThreshold) //It's a SLOT!!!
 {
-	m_MaskThreshold = maskThreshold;
+	m_MaskThreshold = maskThreshold/5;
 	DiffusionCore::ShareWindowEvent();
 }
 
 void DiffusionCore::onBSlide(double computedBValue) //It's a SLOT!!!
 {
 	m_ComputedBValue = computedBValue;
+	int cdwiRow(0), cdwiCol(0);
+	ui_findWdw(CDWI, cdwiRow, cdwiCol);
+	
+	std::cout << "CDWI is at " << cdwiRow << ":" << cdwiCol << std::endl;
 
 	//clear up existing widget
-	QLayoutItem *existItem = this->m_Controls->displayLayout->itemAtPosition(1, 0);
+	QLayoutItem *existItem = this->m_Controls->displayLayout->itemAtPosition(cdwiRow, cdwiCol);
 	QWidget * existWidget = existItem->widget();
 	if (existWidget != NULL) 
 	{
 		QVTKWidget *cDwiWidget= static_cast <QVTKWidget*> (existWidget);
 		vtkSmartPointer <vtkImageData> computedDwi = vtkSmartPointer <vtkImageData>::New();
-		this->ComputedDwi(computedDwi);
+		this->CDWICalculator(computedDwi);
 		QuantitativeImageViewer2D(computedDwi, cDwiWidget, "cDWI");
 	}
 }
@@ -563,6 +633,9 @@ void DiffusionCore::onCalcFA(bool _istoggled)
 {
 	if (_istoggled)
 	{
+		//Set Threshhold bar visible
+		this->m_Controls->Thresh->setVisible(_istoggled);
+
 		QVTKWidget *vtkWindow = new QVTKWidget;
 
 		int rowInd(0), colInd(0);
@@ -576,6 +649,9 @@ void DiffusionCore::onCalcFA(bool _istoggled)
 	}
 	else
 	{
+		//Hide Threshhold bar
+		//this->m_Controls->Thresh->setVisible(_istoggled);
+
 		ui_RemoveWindow(FA);
 	}
 }
@@ -584,6 +660,9 @@ void DiffusionCore::onCalcColorFA(bool _istoggled)
 {
 	if (_istoggled)
 	{
+		//Set Threshhold bar visible
+		this->m_Controls->Thresh->setVisible(_istoggled);
+
 		QVTKWidget *vtkWindow = new QVTKWidget;
 
 		int rowInd(0), colInd(0);
@@ -595,6 +674,9 @@ void DiffusionCore::onCalcColorFA(bool _istoggled)
 	}
 	else
 	{
+		//Hide Threshhold bar
+		//this->m_Controls->Thresh->setVisible(_istoggled);
+
 		ui_RemoveWindow(CFA);
 	}
 }
@@ -652,7 +734,7 @@ void DiffusionCore::ui_InsertWindow(int& rowInd, int& colInd, QVTKWidget *vtkWin
 	std::cout << "[GRIDLAYOUT DEBUG INFO]>>>>>>>>";
 	std::cout << "Will add "<<imageLabel<<" window to [ " << rowInd << ":" << colInd << "]" << std::endl;
 
-	this->m_Controls->displayLayout->addWidget(vtkWindow, rowInd, colInd, 1, 1);	
+	this->m_Controls->displayLayout->addWidget(vtkWindow, rowInd, colInd);
 
 
 	//Update layOutTable
@@ -677,6 +759,8 @@ void DiffusionCore::ui_InsertWindow(int& rowInd, int& colInd, QVTKWidget *vtkWin
 		}
 		std::cout << std::endl;
 	}
+
+	//this->m_Controls->displayLayout->update();
 	//debug info ends
 
 }
@@ -693,26 +777,31 @@ void DiffusionCore::ui_RemoveWindow(imageType imageLabel)
 	std::vector<int>::iterator colit;
 
 	//STEP1, Find window rendering assigned image and delete it, update the layoutTable. 
-	for (rowit = layoutTable.begin(),rowCounter=0; rowit != layoutTable.end(); rowit++, rowCounter++)
-	{
-		for (colit = (*rowit).begin(),colCounter=0; colit != (*rowit).end();)
-		{
-			//std::cout << "Running at " << rowCounter << ":" << colCounter << std::endl;
-			if (*colit == imageLabel)
-			{
-				colit = (*rowit).erase(colit);
-				del_rowInd = rowCounter;
-				del_colInd = colCounter;
-			}
-			else
-			{
-				++colit; colCounter++;
-			}
-		}
-	}	
 
-	std::cout << "[GRIDLAYOUT DEBUG INFO]>>>>>>>>deleting the widget type "<< imageLabel <<" at "<<del_rowInd<<":"<<del_colInd << std:: endl;
+	//for (rowit = layoutTable.begin(),rowCounter=0; rowit != layoutTable.end(); rowit++, rowCounter++)
+	//{
+	//	for (colit = (*rowit).begin(),colCounter=0; colit != (*rowit).end();)
+	//	{
+	//		//std::cout << "Running at " << rowCounter << ":" << colCounter << std::endl;
+	//		if (*colit == imageLabel)
+	//		{
+	//			colit = (*rowit).erase(colit);
+	//			del_rowInd = rowCounter;
+	//			del_colInd = colCounter;
+	//		}
+	//		else
+	//		{
+	//			++colit; colCounter++;
+	//		}
+	//	}
+	//}	
 	
+	ui_findWdw(imageLabel, del_rowInd, del_colInd);	
+	layoutTable[del_rowInd].erase(remove(layoutTable[del_rowInd].begin(), layoutTable[del_rowInd].end(), imageLabel), layoutTable[del_rowInd].end());
+	std::cout << "[GRIDLAYOUT DEBUG INFO]>>>>>>>>deleting the widget type "<< imageLabel <<" at "<<del_rowInd<<":"<<del_colInd << std:: endl;
+	std::vector<int>::iterator rmIt = layoutTable[del_rowInd].begin() + del_colInd;
+
+
 	for (rowit = layoutTable.begin(); rowit != layoutTable.end(); rowit++)
 	{
 		std::cout << "[GRIDLAYOUT DEBUG INFO] BEFORE REORDER WINDOW>>>>>>>> |";
@@ -775,12 +864,12 @@ void DiffusionCore::ui_RemoveWindow(imageType imageLabel)
 
 	//STEP3, Then according to layoutTable to re-render all images. 
 	
-	ui_reDrawAllWdw();
+	ShareWindowEvent();
 	
 	std::cout << "[GRIDLAYOUT DEBUG INFO] After Rendering girdlayout is ";
 	std::cout << m_Controls->displayLayout->rowCount() << " Row " << m_Controls->displayLayout->columnCount() << " Col " << std::endl;
 
-	this->m_Controls->displayLayout->update();	
+	//this->m_Controls->displayLayout->update();	
 
 }
 
@@ -813,12 +902,34 @@ void DiffusionCore::ui_dumpWindow(int row, int col)
 		existWidget->setParent(NULL);//if you want to delete the widget, do: widget->setParent(NULL); delete widget; 
 		delete existWidget;
 	}
-	this->m_Controls->displayLayout->update();
+	//this->m_Controls->displayLayout->update();
 	//std::cout << "[GRIDLAYOUT DEBUG INFO] After Deleting girdlayout is ";
 	//std::cout << m_Controls->displayLayout->rowCount() << " Row " << m_Controls->displayLayout->columnCount() << " Col " << std::endl;
 }
 
-void DiffusionCore::ui_reDrawAllWdw()
+void DiffusionCore::ui_findWdw(imageType imageLabel, int& row, int& col)
+{
+	//std::vector<std::vector<int>>::iterator rowit;
+	std::vector<int>::iterator colit;
+	int rowCounter(0), colCounter(0);
+	std::cout << "Find image " << imageLabel;
+	//STEP1, Find window rendering assigned image and delete it, update the layoutTable. 
+	for (rowCounter = 0; rowCounter < layoutTable.size(); rowCounter++)
+	{
+		for (colit = layoutTable[rowCounter].begin(), colCounter = 0; colit < layoutTable[rowCounter].end(); colit++, colCounter++)
+		{
+
+			if (*colit == imageLabel)
+			{
+				row = rowCounter;
+				col = colCounter;
+			}
+		}
+		std::cout << " row = " << row << "col = " << col << std::endl;
+	}
+}
+
+void DiffusionCore::ShareWindowEvent()
 {
 	std::cout << "[GRIDLAYOUT DEBUG INFO] Before Rendering girdlayout is ";
 	std::cout << layoutTable.size() << " X " << layoutTable[0].size() << std::endl;
@@ -843,11 +954,11 @@ void DiffusionCore::ui_reDrawAllWdw()
 					case ORIGINAL:
 						break;
 					case ADC:
-						this->ComputedDwi(thisImage);
+						this->AdcCalculator(thisImage);
 						QuantitativeImageViewer2D(thisImage, thisWindow, "ADC");
 						break;
 					case CDWI:
-						this->AdcCalculator(thisImage);
+						this->CDWICalculator(thisImage);
 						QuantitativeImageViewer2D(thisImage, thisWindow, "cDWI");
 						break;
 					case EADC:
@@ -881,7 +992,8 @@ void DiffusionCore::DisplayDicomInfo(vtkSmartPointer <vtkImageData> imageData)
 {
 
 	//cout << "fileNames: " << reader->GetFileNames()<< endl;
-	qDebug() << "number of COMPONENTS: " << imageData->GetNumberOfScalarComponents() << endl;
+	//qDebug() << "number of COMPONENTS: " << imageData->GetNumberOfScalarComponents() << endl;
+
 	const int dataDim = imageData->GetDataDimension();
 	//int cells = reader->GetOutput()->GetNumberOfCells();
 	//int points = reader->GetOutput()->GetNumberOfPoints();
@@ -894,42 +1006,61 @@ void DiffusionCore::DisplayDicomInfo(vtkSmartPointer <vtkImageData> imageData)
 	//	double center[3];
 	double range[2];
 	imageData->GetDimensions(dims);
-	qDebug() << "image dims: " << dims[0] << "x" << dims[1] << "x" << dims[2] << endl;
+	//qDebug() << "image dims: " << dims[0] << "x" << dims[1] << "x" << dims[2] << endl;
 	imageData->GetOrigin(origins);
-	qDebug() << "image origins: " << origins[0] << " " << origins[1] << " " << origins[2] << endl;
+	//qDebug() << "image origins: " << origins[0] << " " << origins[1] << " " << origins[2] << endl;
 	imageData->GetSpacing(spacing);
-	qDebug() << "image spacing: " << spacing[0] << "x" << spacing[1] << "x" << spacing[2] << endl;
+	//qDebug() << "image spacing: " << spacing[0] << "x" << spacing[1] << "x" << spacing[2] << endl;
 	imageData->GetExtent(extent);
-	qDebug() << "extent: " << extent[0] << "x" << extent[1] << "x" << extent[2] << "x" << extent[3] << "x" << extent[4] << "x" << extent[5] << endl;
+	//qDebug() << "extent: " << extent[0] << "x" << extent[1] << "x" << extent[2] << "x" << extent[3] << "x" << extent[4] << "x" << extent[5] << endl;
 	imageData->GetScalarRange(range);//1. cannot be type of float here, it's a bug of vtk?  2. error while calculating quantitative output images: pipeline should be updated before calling this method!!!
-	qDebug() << "range: " << range[0] << "x" << range[1] << endl;
-	std::cout << " imageData: GetScalarType() = " << imageData->GetScalarType() << std::endl;
-	std::cout << " scaleSlope = " << this->m_DicomHelper->scaleSlope << std::endl;
-	std::cout << "scaleIntercept = " << this->m_DicomHelper->scaleIntercept << std::endl;
+	//qDebug() << "range: " << range[0] << "x" << range[1] << endl;
+	//std::cout << " imageData: GetScalarType() = " << imageData->GetScalarType() << std::endl;
+	//std::cout << " scaleSlope = " << this->m_DicomHelper->scaleSlope << std::endl;
+	//std::cout << "scaleIntercept = " << this->m_DicomHelper->scaleIntercept << std::endl;
 
-	std::cout << "diffusion related parameters---" << std::endl;
-	for (int i = 0; i < this->m_DicomHelper->numberOfComponents; i = i + this->m_DicomHelper->numberOfGradDirection)
-	{
-		int j = 0;
-		std::cout << "bValueList " << j << ": " << this->m_DicomHelper->BvalueList.at(i / this->m_DicomHelper->numberOfGradDirection) << std::endl;
-		j++;
-	}
-	std::cout << "numberOfComponents = " << this->m_DicomHelper->numberOfComponents << std::endl;
+	//std::cout << "diffusion related parameters---" << std::endl;
+	//for (int i = 0; i < this->m_DicomHelper->numberOfComponents; i = i + this->m_DicomHelper->numberOfGradDirection)
+	//{
+	//	int j = 0;
+	//	std::cout << "bValueList " << j << ": " << this->m_DicomHelper->BvalueList.at(i / this->m_DicomHelper->numberOfGradDirection) << std::endl;
+	//	j++;
+	//}
 	//std::cout << "numberOfComponents = " << this->m_DicomHelper->numberOfComponents << std::endl;
-	std::cout << "numberOfGradDirection = " << this->m_DicomHelper->numberOfGradDirection << std::endl;
-	std::cout << "numberOfBValue = " << this->m_DicomHelper->numberOfBValue << std::endl;
+	//std::cout << "numberOfComponents = " << this->m_DicomHelper->numberOfComponents << std::endl;
+	//std::cout << "numberOfGradDirection = " << this->m_DicomHelper->numberOfGradDirection << std::endl;
+	//std::cout << "numberOfBValue = " << this->m_DicomHelper->numberOfBValue << std::endl;
+
+	vtkMedicalImageProperties* properties = m_DicomHelper->DicomReader->GetMedicalImageProperties();
+	QString imageInfo(tr("Patient Name : "));
+	imageInfo.append(QLatin1String(properties->GetPatientName()));
+	imageInfo.append("\n");
+	imageInfo.append(tr("Study Name: "));
+	imageInfo.append(QLatin1String(properties->GetStudyDescription()));
+	imageInfo.append("\n");
+	imageInfo.append(tr("Scan Name: "));
+	imageInfo.append(QLatin1String(properties->GetSeriesDescription()));
+	imageInfo.append("\n");
+	imageInfo.append(tr("Scan Date: "));
+	imageInfo.append(QLatin1String(properties->GetAcquisitionDate()));
+	imageInfo.append("\n");
+
+	imageInfo.append(tr("Image Dimension: [ %1 : %2 : %3 ]\n").arg(dims[0]).arg(dims[1]).arg(dims[2]));
+	imageInfo.append(tr("Number Of b Value : %1 \n").arg(m_DicomHelper->numberOfBValue));
+	imageInfo.append(tr("Number Of Gradient Direction : %1 \n").arg(m_DicomHelper->numberOfGradDirection));
+	m_Controls->infoBrowser->setText(imageInfo);
 }
 
 void DiffusionCore::SourceImageViewer2D(vtkSmartPointer <vtkImageData> imageData, QVTKWidget *qvtkWidget)
 {
-	double *imageDataRange = new double[2];
-	imageDataRange = imageData->GetScalarRange();//Replace with to be displayed
+	//double *imageDataRange = new double[2];
+	//imageDataRange = imageData->GetScalarRange();//Replace with to be displayed
 
 	vtkSmartPointer<vtkImageViewer2> imageViewer = vtkSmartPointer<vtkImageViewer2>::New();
 	imageViewer->SetInputData(imageData);
 	imageViewer->SetSliceOrientationToXY();
-	imageViewer->SetColorWindow(imageDataRange[1] - imageDataRange[0]);
-	imageViewer->SetColorLevel(0.5* (imageDataRange[1] + imageDataRange[0]));
+	//imageViewer->SetColorWindow(imageDataRange[1] - imageDataRange[0]);
+	//imageViewer->SetColorLevel(0.5* (imageDataRange[1] + imageDataRange[0]));
 
 	vtkSmartPointer<vtkTextProperty> sliceTextProp = vtkSmartPointer<vtkTextProperty>::New();
 	sliceTextProp->SetFontFamilyToCourier();
@@ -965,21 +1096,18 @@ void DiffusionCore::SourceImageViewer2D(vtkSmartPointer <vtkImageData> imageData
 	//imageViewer->GetRenderer()->SetBackground(0.2, 0.3, 0.4);
 	qvtkWidget->SetRenderWindow(imageViewer->GetRenderWindow());
 	//qvtkWidget->GetRenderWindow()->vtkRenderWindow::SetSize(qvtkWidget->width(), qvtkWidget->height());
+	std::cout << "RenderWindow SIZE = " << *(qvtkWidget->GetRenderWindow()->GetSize()) << std::endl;
+	std::cout << "ImageViewer SIZE = " << *(imageViewer->GetSize()) << std::endl;
 	qvtkWidget->GetRenderWindow()->vtkRenderWindow::SetSize(800, 800);
 	qvtkWidget->GetRenderWindow()->vtkRenderWindow::SetPosition(qvtkWidget->x(), qvtkWidget->y());
 	qvtkWidget->GetRenderWindow()->SetInteractor(renderWindowInteractor);//crutial to let qvtkWidget share the same interactor with imageViewer
 	qvtkWidget->show();
 	//std::cout << " qvtkWidget height " << qvtkWidget->height() << " qvtkWidget width " << qvtkWidget->width() << std::endl;
-	std::cout << " Now in SourceImage viewer " << std::endl;
+	//std::cout << " Now in SourceImage viewer " << std::endl;
 	imageViewer->GetRenderer()->ResetCamera(); //Reset camera and then render is better
 	imageViewer->Render();
 	renderWindowInteractor->Initialize();
 	renderWindowInteractor->Start();
-}
-
-void DiffusionCore::ShareWindowEvent()
-{
-	ui_reDrawAllWdw();
 }
 
 void DiffusionCore::QuantitativeImageViewer2D(vtkSmartPointer <vtkImageData> imageData, QVTKWidget *qvtkWidget, std::string imageLabel)
@@ -1054,12 +1182,14 @@ void DiffusionCore::QuantitativeImageViewer2D(vtkSmartPointer <vtkImageData> ima
 	//imageViewer->GetRenderer()->SetBackground(0.2, 0.3, 0.4);
 	qvtkWidget->SetRenderWindow(imageViewer->GetRenderWindow());
 	//qvtkWidget->GetRenderWindow()->vtkRenderWindow::SetSize(qvtkWidget->width(), qvtkWidget->height());
+	std::cout << "QVTKWIDEGT SIZE = " << * (qvtkWidget->GetRenderWindow()->GetSize()) << std::endl;
+	std::cout << "ImageViewer SIZE = " << *(imageViewer->GetSize()) << std::endl;
 	qvtkWidget->GetRenderWindow()->vtkRenderWindow::SetSize(800, 800);
 	qvtkWidget->GetRenderWindow()->vtkRenderWindow::SetPosition(qvtkWidget->x(), qvtkWidget->y());
 	qvtkWidget->GetRenderWindow()->SetInteractor(renderWindowInteractor);//crutial to let qvtkWidget share the same interactor with imageViewer
 	//imageViewer->SetupInteractor(renderWindowInteractor);
 	qvtkWidget->show();	
-	std::cout << " Now in Quantitative ImageViewer " << std::endl;
+	//std::cout << " Now in Quantitative ImageViewer " << std::endl;
 	imageViewer->GetRenderer()->ResetCamera(); //Reset camera and then render is better
 	imageViewer->Render();
 	renderWindowInteractor->Initialize();
@@ -1121,7 +1251,7 @@ void DiffusionCore::FaCalculator(vtkSmartPointer <vtkImageData> imageData)
 		typedef itk::MaskVectorImageFilter <float> MaskFilterType;
 		MaskFilterType::Pointer maskFilter = MaskFilterType::New();
 		maskFilter->SetInput(convertedToITK.outComposedImage->GetOutput());//input is a Image Pointer!!!
-		maskFilter->SetMaskThreshold(m_MaskThreshold / m_DicomHelper->scaleSlope);//Get from UI or user-interaction
+		maskFilter->SetMaskThreshold(m_MaskThreshold);//Get from UI or user-interaction
 		maskFilter->Update();//output is a Image Pointer!!!
 		//std::cout << "maskFilter: vectorLength = " << maskFilter->GetOutput()->GetVectorLength() << std::endl;
 
@@ -1225,7 +1355,7 @@ void DiffusionCore::FaCalculator(vtkSmartPointer <vtkImageData> imageData)
 		typedef itk::MaskVectorImageFilter <float> MaskFilterType;
 		MaskFilterType::Pointer maskFilter = MaskFilterType::New();
 		maskFilter->SetInput(imageToVectorImageFilter->GetOutput());//input is a Image Pointer!!!
-		maskFilter->SetMaskThreshold(m_MaskThreshold / m_DicomHelper->scaleSlope);//Get from UI or user-interaction
+		maskFilter->SetMaskThreshold(m_MaskThreshold);//Get from UI or user-interaction
 		maskFilter->Update();//output is a Image Pointer!!!
 		//std::cout << "maskFilter: vectorLength = " << maskFilter->GetOutput()->GetVectorLength() << std::endl;
 
@@ -1338,7 +1468,7 @@ void DiffusionCore::ColorFACalculator(vtkSmartPointer <vtkImageData> imageData)
 		typedef itk::MaskVectorImageFilter <float> MaskFilterType;
 		MaskFilterType::Pointer maskFilter = MaskFilterType::New();
 		maskFilter->SetInput(convertedToITK.outComposedImage->GetOutput());//input is a Image Pointer!!!
-		maskFilter->SetMaskThreshold(m_MaskThreshold / m_DicomHelper->scaleSlope);//Get from UI or user-interaction
+		maskFilter->SetMaskThreshold(m_MaskThreshold);//Get from UI or user-interaction
 		maskFilter->Update();//output is a Image Pointer!!!
 		//std::cout << "maskFilter: vectorLength = " << maskFilter->GetOutput()->GetVectorLength() << std::endl;
 
@@ -1415,7 +1545,7 @@ void DiffusionCore::EAdcCalculator(vtkSmartPointer <vtkImageData> imageData)
 		typedef itk::MaskVectorImageFilter <float> MaskFilterType;
 		MaskFilterType::Pointer maskFilter = MaskFilterType::New();
 		maskFilter->SetInput(convertedToITK.outComposedImage->GetOutput());//input is a Image Pointer!!!
-		maskFilter->SetMaskThreshold(m_MaskThreshold / m_DicomHelper->scaleSlope);//Get from UI or user-interaction
+		maskFilter->SetMaskThreshold(m_MaskThreshold);//Get from UI or user-interaction
 		maskFilter->Update();//output is a Image Pointer!!!
 		//std::cout << "maskFilter: vectorLength = " << maskFilter->GetOutput()->GetVectorLength() << std::endl;
 
@@ -1519,7 +1649,7 @@ void DiffusionCore::EAdcCalculator(vtkSmartPointer <vtkImageData> imageData)
 		typedef itk::MaskVectorImageFilter <float> MaskFilterType;
 		MaskFilterType::Pointer maskFilter = MaskFilterType::New();
 		maskFilter->SetInput(imageToVectorImageFilter->GetOutput());//input is a Image Pointer!!!
-		maskFilter->SetMaskThreshold(m_MaskThreshold / m_DicomHelper->scaleSlope);//Get from UI or user-interaction
+		maskFilter->SetMaskThreshold(m_MaskThreshold);//Get from UI or user-interaction
 		maskFilter->Update();//output is a Image Pointer!!!
 		//std::cout << "maskFilter: vectorLength = " << maskFilter->GetOutput()->GetVectorLength() << std::endl;
 
@@ -1530,16 +1660,23 @@ void DiffusionCore::EAdcCalculator(vtkSmartPointer <vtkImageData> imageData)
 		adcMap->SetInput(maskFilter->GetOutput());
 		adcMap->SetBValueList(this->m_DicomHelper->BvalueList);
 		adcMap->Update();
-
 		//std::cout << "------------- AdcMapFilter end runing ----------- " << std::endl;
 		//std::cout << "adcVectorImage: vectorLength = " << adcMap->GetOutput()->GetVectorLength() << std::endl;
+
+		typedef itk::ComputedEadcFilter <float, float> ComputedEadcFilterType;
+		ComputedEadcFilterType::Pointer computedEadc = ComputedEadcFilterType::New();
+		computedEadc->SetInput(adcMap->GetOutput());
+		computedEadc->SetNumOfDiffDirections(this->m_DicomHelper->numberOfGradDirection);
+		computedEadc->SetEadcBValue(this->m_DicomHelper->BvalueList.at(this->m_DicomHelper->BvalueList.size() - 1));//Get from UI input
+		computedEadc->Update();
 
 		//vector image to scalar image or imageContainer
 		typedef itk::VectorIndexSelectionCastImageFilter <itk::VectorImage<float, 3>, FloatImageType> VectorImageToImageType;
 		VectorImageToImageType::Pointer vectorImageToImageFilter = VectorImageToImageType::New();
-		vectorImageToImageFilter->SetIndex(1);
-		vectorImageToImageFilter->SetInput(adcMap->GetOutput());
+		vectorImageToImageFilter->SetIndex(0);
+		vectorImageToImageFilter->SetInput(computedEadc->GetOutput());
 		vectorImageToImageFilter->Update();
+
 
 		//Rescale signal intensity to display
 		typedef itk::RescaleIntensityImageFilter < FloatImageType, FloatImageType> RescaleIntensityImageType;
@@ -1555,7 +1692,7 @@ void DiffusionCore::EAdcCalculator(vtkSmartPointer <vtkImageData> imageData)
 		typedef itk::DisplayOptimizer < FloatImageType, SrcImageType> DisplayOptimizerType;
 		DisplayOptimizerType::Pointer displayOptimizer = DisplayOptimizerType::New();
 		displayOptimizer->SetInput(rescaleFilter->GetOutput());
-		displayOptimizer->SetCoveragePercent(0.9);//Default is 0.99
+		displayOptimizer->SetCoveragePercent(0.98);//Default is 0.99
 		displayOptimizer->Update();
 
 		//std::cout << "rescaleFilter: inputMaximum = " << rescaleFilter->GetInputMaximum() << std::endl;
@@ -1569,14 +1706,6 @@ void DiffusionCore::EAdcCalculator(vtkSmartPointer <vtkImageData> imageData)
 		convItkToVtk->Update();
 
 		imageData->DeepCopy(convItkToVtk->GetOutput());
-		//Crutial not imageData = convItkToVtk->GetOutput(),
-		//Because convItkToVtk->Update() pointer is recycled after this caller!!!
-
-		//Visualize data
-		//QVTKWidget *vtkComputedDwiWindow = new QVTKWidget;
-		//this->m_Controls->displayLayout_2->addWidget(vtkComputedDwiWindow, 0, 1, 1, 1);
-		//this->m_Controls->displayLayout_2->update();
-		//QuantitativeImageViewer2D(convItkToVtk->GetOutput(), vtkComputedDwiWindow);
 	}
 
 

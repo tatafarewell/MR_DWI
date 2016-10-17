@@ -7,7 +7,7 @@
 #include <QProgressDialog>
 #include <QVariant>
 #include <QMessageBox>
-
+#include "qdebug.h"
 
 QmitkDicomLocalStorageWidget::QmitkDicomLocalStorageWidget(QWidget *parent)
   : QWidget(parent)
@@ -209,8 +209,11 @@ void QmitkDicomLocalStorageWidget::OnViewButtonClicked()
 	foreach(uid, uids)
 	{
 		filePaths.append(m_LocalDatabase->filesForSeries(uid));
+		qDebug() << "Files for This UID: " << m_LocalDatabase->filesForSeries(uid) << endl;
+		qDebug() << "Description for this UID: " << m_LocalDatabase->descriptionForSeries(uid) << endl;
 
 	}
+
 	if (filePaths.size() == 0)
 	{
 		QMessageBox info;

@@ -52,7 +52,7 @@
          </attribute>
          <layout class="QVBoxLayout" name="verticalLayout_7">
           <item>
-           <widget class="QTableView" name="infoTable"/>
+           <widget class="QTextBrowser" name="infoBrowser"/>
           </item>
          </layout>
         </widget>
@@ -62,7 +62,7 @@
          </attribute>
          <layout class="QVBoxLayout" name="verticalLayout_6">
           <item>
-           <widget class="QTableView" name="statisTable"/>
+           <widget class="QTextBrowser" name="statisBrowser"/>
           </item>
          </layout>
         </widget>
@@ -167,9 +167,9 @@
                <property name="text">
                 <string>彩色FA</string>
                </property>
-                <property name="checkable">
-                  <bool>true</bool>
-                </property>
+               <property name="checkable">
+                <bool>true</bool>
+               </property>
               </widget>
              </item>
              <item>

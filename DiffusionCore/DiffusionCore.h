@@ -160,13 +160,14 @@ protected:
     void FaCalculator(vtkSmartPointer <vtkImageData> imageData);
 	void ColorFACalculator(vtkSmartPointer <vtkImageData> imageData);
 	void EAdcCalculator(vtkSmartPointer <vtkImageData> imageData);	
-	void ComputedDwi(vtkSmartPointer <vtkImageData> imageData);
+	void CDWICalculator(vtkSmartPointer <vtkImageData> imageData);
 
 	void ui_InsertWindow(int& rowInd, int& colInd, QVTKWidget *vtkWindow, imageType imageLabel);
 	void ui_RemoveWindow(imageType a);
 	bool ui_IsWdWSquare();
 	void ui_dumpWindow(int row, int col);
-	void ui_reDrawAllWdw();
+	void ui_findWdw(imageType imageLabel, int& row, int& col);
+	
 
 protected:
 	vtkSmartPointer < vtkImageData > sourceImage;
