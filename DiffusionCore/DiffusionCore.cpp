@@ -158,6 +158,12 @@ void DiffusionCore::OnImageFilesLoaded(const QStringList& fileLists)
 		this->m_Controls->faToggle->setEnabled(true);
 		this->m_Controls->colorFAToggle->setEnabled(true);
 		this->m_Controls->ivimToggle->setEnabled(true);
+
+		m_SourceImageCurrentSlice = 0;
+		m_QuantitativeImageCurrentSlice = 0;
+		this->m_DicomHelper = nullptr;
+		this->m_MaskThreshold = 3;
+		this->m_ComputedBValue = 2000;
 	}
 
 	//load data
@@ -1098,6 +1104,7 @@ void DiffusionCore::SourceImageViewer2D(vtkSmartPointer <vtkImageData> imageData
 	//qvtkWidget->GetRenderWindow()->vtkRenderWindow::SetSize(qvtkWidget->width(), qvtkWidget->height());
 	std::cout << "RenderWindow SIZE = " << *(qvtkWidget->GetRenderWindow()->GetSize()) << std::endl;
 	std::cout << "ImageViewer SIZE = " << *(imageViewer->GetSize()) << std::endl;
+	std::cout << "QVTKWIDEGT SIZE = " << qvtkWidget->width() << "-" << qvtkWidget->height() << std::endl;
 	qvtkWidget->GetRenderWindow()->vtkRenderWindow::SetSize(800, 800);
 	qvtkWidget->GetRenderWindow()->vtkRenderWindow::SetPosition(qvtkWidget->x(), qvtkWidget->y());
 	qvtkWidget->GetRenderWindow()->SetInteractor(renderWindowInteractor);//crutial to let qvtkWidget share the same interactor with imageViewer
@@ -1184,7 +1191,8 @@ void DiffusionCore::QuantitativeImageViewer2D(vtkSmartPointer <vtkImageData> ima
 	//qvtkWidget->GetRenderWindow()->vtkRenderWindow::SetSize(qvtkWidget->width(), qvtkWidget->height());
 	std::cout << "QVTKWIDEGT SIZE = " << * (qvtkWidget->GetRenderWindow()->GetSize()) << std::endl;
 	std::cout << "ImageViewer SIZE = " << *(imageViewer->GetSize()) << std::endl;
-	qvtkWidget->GetRenderWindow()->vtkRenderWindow::SetSize(800, 800);
+	std::cout << "QVTKWIDEGT SIZE = " << qvtkWidget->width()<< "-" << qvtkWidget->height() << std::endl;
+	//qvtkWidget->GetRenderWindow()->vtkRenderWindow::SetSize(800, 800);
 	qvtkWidget->GetRenderWindow()->vtkRenderWindow::SetPosition(qvtkWidget->x(), qvtkWidget->y());
 	qvtkWidget->GetRenderWindow()->SetInteractor(renderWindowInteractor);//crutial to let qvtkWidget share the same interactor with imageViewer
 	//imageViewer->SetupInteractor(renderWindowInteractor);
