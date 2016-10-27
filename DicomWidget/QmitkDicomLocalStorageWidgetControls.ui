@@ -56,8 +56,8 @@
             <string>View</string>
            </property>
            <property name="icon">
-            <iconset>
-             <normaloff>:/org.mitk.gui.qt.dicom/viewIcon.png</normaloff>:/org.mitk.gui.qt.dicom/viewIcon.png</iconset>
+            <iconset resource="../resources/MR_DWI.qrc">
+             <normaloff>:/icons/viewIcon.png</normaloff>:/icons/viewIcon.png</iconset>
            </property>
            <property name="iconSize">
             <size>
@@ -77,7 +77,7 @@
            </property>
            <property name="icon">
             <iconset>
-             <normaloff>:/org.mitk.gui.qt.datamanager/Remove_48.png</normaloff>:/org.mitk.gui.qt.datamanager/Remove_48.png</iconset>
+             <normaloff>:/icons/Remove_48.png</normaloff>:/icons/Remove_48.png</iconset>
            </property>
           </widget>
          </item>
@@ -130,7 +130,7 @@
   </customwidget>
  </customwidgets>
  <resources>
-  <include location="resources/dicom.qrc"/>
+  <include location="../resources/MR_DWI.qrc"/>
  </resources>
  <connections/>
 </ui>

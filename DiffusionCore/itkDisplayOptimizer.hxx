@@ -111,10 +111,10 @@ namespace itk
 			upperValue = cutOff*range + m_InputMinimum;
 		}
 
-		std::cout << "input min = " << m_InputMinimum << std::endl;
-		std::cout << "input max = " << m_InputMaximum << std::endl;
-		std::cout << "lowerValue = " << lowerValue << std::endl;
-		std::cout << "upperValue = " << upperValue << std::endl;
+		//std::cout << "input min = " << m_InputMinimum << std::endl;
+		//std::cout << "input max = " << m_InputMaximum << std::endl;
+		//std::cout << "lowerValue = " << lowerValue << std::endl;
+		//std::cout << "upperValue = " << upperValue << std::endl;
 
 		//cutoff the input image pixle intensity to [lowerValue, upperValue]
 		//Maybe we should rescale it to [0, 4095] here rather than use another filter outside, benefit is some sort of speed enhancement

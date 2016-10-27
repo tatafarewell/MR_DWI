@@ -1,10 +1,11 @@
 #include <QApplication>
 #include "mainwindow.h"
+#include "qresource.h"
 
 int main( int argc, char** argv )
 {
   // QT Stuff
-	//Q_INIT_RESOURCE(style);
+	//QResource::registerResource("resources/MR_DWI.qrc");
     QApplication app( argc, argv );
 
     MainWindow myUI;

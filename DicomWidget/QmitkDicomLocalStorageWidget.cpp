@@ -209,8 +209,8 @@ void QmitkDicomLocalStorageWidget::OnViewButtonClicked()
 	foreach(uid, uids)
 	{
 		filePaths.append(m_LocalDatabase->filesForSeries(uid));
-		qDebug() << "Files for This UID: " << m_LocalDatabase->filesForSeries(uid) << endl;
-		qDebug() << "Description for this UID: " << m_LocalDatabase->descriptionForSeries(uid) << endl;
+		//qDebug() << "Files for This UID: " << m_LocalDatabase->filesForSeries(uid) << endl;
+		//qDebug() << "Description for this UID: " << m_LocalDatabase->descriptionForSeries(uid) << endl;
 
 	}
 

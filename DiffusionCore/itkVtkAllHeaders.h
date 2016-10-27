@@ -48,13 +48,18 @@
 #include <vtkImageExtractComponents.h>
 #include <vtkImageShiftScale.h>
 #include <vtkImageChangeInformation.h>
-//jiangli test reset window
-#include "vtkInformation.h"
-#include "vtkAlgorithm.h"
-#include "vtkStreamingDemandDrivenPipeline.h"
-#include "vtkImageMapper3D.h"
-#include "vtkImageMapToWindowLevelColors.h"
-//jiangli test reset window end
+#include <vtkCamera.h>
+#include <vtkPolyDataToImageStencil.h>
+#include <vtkImageStencilToImage.h>
+#include <vtkImageAccumulate.h>
+#include <vtkImageTracerWidget.h>
+////jiangli test reset window
+//#include "vtkInformation.h"
+//#include "vtkAlgorithm.h"
+//#include "vtkStreamingDemandDrivenPipeline.h"
+//#include "vtkImageMapper3D.h"
+//#include "vtkImageMapToWindowLevelColors.h"
+////jiangli test reset window end
 
 //DicomReader not DicomImageReader
 #include "vtkDICOMDirectory.h"
@@ -88,7 +93,8 @@
 #include "itkImageToHistogramFilter.h"
 #include <itkAdcMapFilter.h>
 #include <itkComputedDwiFilter.h>
-#include <itkDwiIVIMFilter.h>
+//#include <itkDwiIVIMFilter.h>
+#include <itkDwiIVIMFilter2.h>
 #include <itkMaskVectorImageFilter.h>
 #include <itkDisplayOptimizer.h>
 #include <itkComputedEadcFilter.h>
@@ -156,13 +162,15 @@ public:
 		_MinSlice = imageViewer->GetSliceMin();
 		_MaxSlice = imageViewer->GetSliceMax();
 		_Slice = _MinSlice;
-
+		std::cout << "_Slice = , _MaxSlice" << _Slice << " " << _MaxSlice << std::endl;
 		_OriginalInputImageData = imageViewer->GetInput();
-		
-		SetDefaultWindowLevel(_Slice, _Component);
 
 		_MaxComponent = imageViewer->GetInput()->GetNumberOfScalarComponents() - 1;
 		_Component = 0;
+
+		SetDefaultWindowLevel(_Slice, _Component);
+
+		
 
 		//cout << "Slicer: Min = " << _MinSlice << ", Max = " << _MaxSlice << std::endl;
 	}
@@ -199,9 +207,9 @@ public:
 			changeInfo->SetOutputOrigin(0, 0, 0);
 			changeInfo->SetExtentTranslation(0, 0, -currentSlice);
 			changeInfo->Update();
-			std::cout << "before window leve range = " << std::endl;
+			//std::cout << "before window leve range = " << std::endl;
 			double *range = static_cast<double *>(changeInfo->GetOutput()->GetScalarRange());
-			std::cout << "window leve range = " << range[0] << " " << range[1] << std::endl;
+			//std::cout << "window leve range = " << range[0] << " " << range[1] << std::endl;
 			_ImageViewer->SetColorWindow(range[1] - range[0]);
 			_ImageViewer->SetColorLevel(0.5* (range[1] + range[0]));
 		}
@@ -215,15 +223,16 @@ protected:
 	void MoveSliceForward() {
 		if (_Slice < _MaxSlice) {
 			_Slice += 1;
+
+			SetDefaultWindowLevel(_Slice, _Component);
+
 			cout << "MoveSliceForward::Slice = " << _Slice << std::endl;
 
 			_ImageViewer->SetSlice(_Slice);
 			std::string msg = StatusMessage::Format(_Slice, _MaxSlice);
 			_StatusMapper->SetInput(msg.c_str());
 			*_CurrentSlice = _Slice;
-
-			SetDefaultWindowLevel(_Slice, _Component);
-
+			//_ImageViewer->GetRenderer()->ResetCamera();
 			_ImageViewer->Render();
 		}
 	}
@@ -231,14 +240,13 @@ protected:
 	void MoveSliceBackward() {
 		if (_Slice > _MinSlice) {
 			_Slice -= 1;
+			SetDefaultWindowLevel(_Slice, _Component);
 			cout << "MoveSliceBackward::Slice = " << _Slice << std::endl;
 			_ImageViewer->SetSlice(_Slice);
 			std::string msg = StatusMessage::Format(_Slice, _MaxSlice);
 			_StatusMapper->SetInput(msg.c_str());
 			*_CurrentSlice = _Slice;
-
-			SetDefaultWindowLevel(_Slice, _Component);
-
+			//_ImageViewer->GetRenderer()->ResetCamera();
 			_ImageViewer->Render();			
 		}
 	}
@@ -248,6 +256,9 @@ protected:
 		if (_Component < _MaxComponent)
 		{
 			_Component ++;
+
+			SetDefaultWindowLevel(_Slice, _Component);
+
 			cout << "MoveSliceComponentForward: Component = " << _Component << std::endl;
 
 			vtkSmartPointer <vtkImageExtractComponents> scalarComponent = vtkSmartPointer <vtkImageExtractComponents>::New();
@@ -257,7 +268,7 @@ protected:
 			_ImageViewer->SetInputData(scalarComponent->GetOutput());
 			_ImageViewer->SetSlice(_Slice);
 
-			SetDefaultWindowLevel(_Slice, _Component);
+
 
 			_ImageViewer->Render();
 
@@ -271,6 +282,9 @@ protected:
 		if (_Component > 0)
 		{
 			_Component--;
+
+			SetDefaultWindowLevel(_Slice, _Component);
+
 			cout << "MoveSliceComponentBackward: Component = " << _Component << std::endl;
 			vtkSmartPointer <vtkImageExtractComponents> scalarComponent = vtkSmartPointer <vtkImageExtractComponents>::New();
 			scalarComponent->SetInputData(_OriginalInputImageData);
@@ -279,7 +293,7 @@ protected:
 			_ImageViewer->SetInputData(scalarComponent->GetOutput());
 			_ImageViewer->SetSlice(_Slice);
 
-			SetDefaultWindowLevel(_Slice, _Component);
+
 
 			_ImageViewer->Render();
 

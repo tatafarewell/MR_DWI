@@ -16,7 +16,7 @@ MainWindow::MainWindow(QWidget *parent) :
 	DicomUI->hide();
 
 	//Set Window Style
-	QFile file("style.qss");
+	QFile file(":/dark.qss");
 	file.open(QFile::ReadOnly);
 	QString styleSheet = QLatin1String(file.readAll());
 	setStyleSheet(styleSheet);

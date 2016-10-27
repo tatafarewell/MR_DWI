@@ -17,13 +17,12 @@ add_subdirectory(DicomWidget)
 add_subdirectory(DiffusionCore)
 
 find_package(VTK REQUIRED)
-set(CTK_DIR "C:/Tech318/CTK/CTK/CTK-Superbuild")
 find_package(CTK REQUIRED)
-#find_package(QT REQUIRED)
+find_package(ITK REQUIRED)
 
 include(${VTK_USE_FILE})
 include(${CTK_USE_FILE})
-#include(${QT_USE_FILE})
+include(${ITK_USE_FILE})
 
 if("${VTK_QT_VERSION}" STREQUAL "")
   message(FATAL_ERROR "VTK was not built with Qt")

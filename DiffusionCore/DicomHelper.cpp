@@ -11,10 +11,12 @@ void DicomHelper::SetDiffusionSeriesNumber(int seriesNumber)
 };
 
 void DicomHelper::DicomInfo()
-{
-	DicomReader->UpdateInformation();
-	int numberOfScalarComponents = DicomReader->GetOutput()->GetNumberOfScalarComponents();
+{	
+	DicomReader->Update();
+	numberOfComponents = DicomReader->GetOutput()->GetNumberOfScalarComponents();
+	DicomReader->GetOutput()->GetDimensions(imageDimensions);
 
+	DicomReader->UpdateInformation();
 	vtkSmartPointer<vtkDICOMMetaData> meta = vtkSmartPointer<vtkDICOMMetaData>::New();
 	meta = DicomReader->GetMetaData();
 
@@ -37,22 +39,35 @@ void DicomHelper::DicomInfo()
 	{
 		numberOfGradDirection = meta->GetAttributeValue(DICOM_NO_DIFF_GRAD_ORIENT).AsInt();
 		if (numberOfGradDirection > 6)
+		{
 			tensorComputationPossible = true;
+		}
+		else//DTI data: can't get the right numberOfGradDirection from Philips Dicom Tag, calculate it myself when dealing with dwi data
+		{
+			DicomHelper::UpdateGradDirectionNumber();
+		}
 	}
 
 	if (meta->HasAttribute(DICOM_DIFF_B_FACTOR))
 	{
-		BvalueList.push_back(0);
+		//BvalueList.push_back(0);//Bug fix here, notify Wenxing later
 		for (vtkDICOMDataElementIterator iter = meta->Begin(); iter != meta->End(); ++iter)
 		{
 			vtkDICOMTag tag = iter->GetTag();
 			if ((tag == DICOM_DIFF_B_FACTOR) && (iter->IsPerInstance()))
 			{
-				for (int i = 1; i < numberOfBValue; i++)
+				//replace with below to fix possible multiple b value multiple direction error
+				for (int i = 0; i < numberOfComponents; i = i + numberOfGradDirection)
+				{
+					BvalueList.push_back(meta->GetAttributeValue(i, DICOM_DIFF_B_FACTOR).AsFloat());
+					std::cout << "BvalueList " << i / numberOfGradDirection << ": " << BvalueList.at(i / numberOfGradDirection) << std::endl;
+				}			
+				
+				/*for (int i = 1; i < numberOfBValue; i++)
 				{
 					float bvalue = meta->GetAttributeValue(i, DICOM_DIFF_B_FACTOR).AsFloat();
 					BvalueList.push_back(bvalue);
-				}
+				}*/
 			}
 		}
 	}
@@ -233,11 +248,8 @@ DicomHelper::DicomHelper(vtkStringArray* Files)
 	DicomReader->SetFileNames(Files);
 
 	DicomHelper::DicomInfo();
-	DicomReader->Update();
-	numberOfComponents = DicomReader->GetOutput()->GetNumberOfScalarComponents();
-	DicomReader->GetOutput()->GetDimensions(imageDimensions);
-	if (numberOfGradDirection < 6 )
-	{
-		DicomHelper::UpdateGradDirectionNumber();
-	}
+	//DicomReader->Update();
+	//numberOfComponents = DicomReader->GetOutput()->GetNumberOfScalarComponents();
+	//DicomReader->GetOutput()->GetDimensions(imageDimensions);
+
 };

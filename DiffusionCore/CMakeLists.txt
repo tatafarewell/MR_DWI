@@ -22,7 +22,6 @@ include(${CTK_USE_FILE})
 set( Srcs 
     DicomHelper.cpp
     DiffusionCore.cpp
-	VTKtoITK.cpp
     )
 
 set( Hdrs 
@@ -33,18 +32,20 @@ set( Hdrs
      itkDwiIVIMCostFunction.h
      itkDwiIVIMFilter.hxx
      itkDwiIVIMFilter.h
-	 itkComputedEadcFilter.h
-	 itkComputedEadcFilter.hxx
+     itkComputedEadcFilter.h
+     itkComputedEadcFilter.hxx
+     itkDwiIVIMCostFunction2.h
+     itkDwiIVIMFilter2.hxx
+     itkDwiIVIMFilter2.h
      itkDisplayOptimizer.h
      itkDisplayOptimizer.hxx
      itkMaskVectorImageFilter.h
      itkMaskVectorImageFilter.hxx
-	 itkTensor.h
-	 itkTensor.hxx
-	 itkGetDiffusionImageFilter.h
-	 itkGetDiffusionImageFilter.hxx
+     itkTensor.h
+     itkTensor.hxx
+     itkGetDiffusionImageFilter.h
+     itkGetDiffusionImageFilter.hxx
      itkVtkAllHeaders.h
-	 VTKtoITK.h
      DicomHelper.h
      DiffusionCore.h
    )

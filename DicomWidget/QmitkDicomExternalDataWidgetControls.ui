@@ -45,7 +45,7 @@
            </property>
            <property name="icon">
             <iconset>
-             <normaloff>:/org.mitk.gui.qt.dicom/folder_32.png</normaloff>:/org.mitk.gui.qt.dicom/folder_32.png</iconset>
+             <normaloff>:/icons/folder_32.png</normaloff>:/icons/folder_32.png</iconset>
            </property>
           </widget>
          </item>
@@ -59,7 +59,7 @@
            </property>
            <property name="icon">
             <iconset>
-             <normaloff>:/org.mitk.gui.qt.dicom/import_32.png</normaloff>:/org.mitk.gui.qt.dicom/import_32.png</iconset>
+             <normaloff>:/icons/import_32.png</normaloff>:/icons/import_32.png</iconset>
            </property>
           </widget>
          </item>
@@ -73,7 +73,7 @@
            </property>
            <property name="icon">
             <iconset>
-             <normaloff>:/org.mitk.gui.qt.dicom/viewIcon.png</normaloff>:/org.mitk.gui.qt.dicom/viewIcon.png</iconset>
+             <normaloff>:/icons/viewIcon.png</normaloff>:/icons/viewIcon.png</iconset>
            </property>
            <property name="iconSize">
             <size>
@@ -131,6 +131,8 @@
    <container>1</container>
   </customwidget>
  </customwidgets>
- <resources/>
+ <resources>
+  <include location="../resources/MR_DWI.qrc"/>
+ </resources>
  <connections/>
 </ui>
